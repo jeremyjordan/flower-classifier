@@ -1,0 +1,1 @@
+ROOT_DATA_DIR = '/content/drive/My Drive/Flowers/'
