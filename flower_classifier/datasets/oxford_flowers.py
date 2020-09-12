@@ -1,11 +1,14 @@
 import logging
 from pathlib import Path
 
+import numpy as np
+import pytorch_lightning as pl
 import torch
 import torchvision
 from PIL import Image
 from scipy.io import loadmat
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.sampler import SubsetRandomSampler
 
 from flower_classifier import ROOT_DATA_DIR
 
@@ -163,8 +166,44 @@ class OxfordFlowers102Dataset(Dataset):
         img = Image.open(filepath)
         img = self.transform(img)
         label = self.labels[index]
-        label = torch.LongTensor([label])
+        label = torch.tensor(label, dtype=torch.long)
         return img, label
 
     def __len__(self):
         return len(self.labels)
+
+
+class OxfordFlowersDataModule(pl.LightningDataModule):
+    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64):
+        super().__init__()
+        self.data_dir = data_dir
+        self.batch_size = batch_size
+
+    def setup(self, stage=None):
+        transforms = [
+            torchvision.transforms.RandomResizedCrop(224),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
+        self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=transforms)
+        train_idx, valid_idx = self.get_sampler_indices()
+        self.train_sampler = SubsetRandomSampler(train_idx)
+        self.val_sampler = SubsetRandomSampler(valid_idx)
+
+    def get_sampler_indices(self, valid_size=0.1, shuffle=True, random_seed=14):
+        num_train = len(self.dataset)
+        indices = list(range(num_train))
+        split = int(np.floor(valid_size * num_train))
+
+        if shuffle:
+            np.random.seed(random_seed)
+            np.random.shuffle(indices)
+
+        train_idx, valid_idx = indices[split:], indices[:split]
+        return train_idx, valid_idx
+
+    def train_dataloader(self):
+        return DataLoader(self.dataset, batch_size=self.batch_size, sampler=self.train_sampler, num_workers=4)
+
+    def val_dataloader(self):
+        return DataLoader(self.dataset, batch_size=self.batch_size, sampler=self.val_sampler, num_workers=4)
