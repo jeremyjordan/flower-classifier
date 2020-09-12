@@ -5,7 +5,7 @@ init:
 
 format:
 	black . --line-length=120
-	isort .
+	isort . --multi-line VERTICAL_HANGING_INDENT --trailing-comma
 	flake8
 
 check:
