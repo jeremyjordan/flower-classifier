@@ -115,7 +115,7 @@ NAMES = [
     "blanket flower",
     "trumpet creeper",
     "blackberry lily",
-]  # from https://github.com/tensorflow/datasets/blob/master/tensorflow_datasets/image_classification/oxford_flowers102.py
+]  # https://github.com/tensorflow/datasets/blob/master/tensorflow_datasets/image_classification/oxford_flowers102.py
 IMAGE_URL = "https://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz"
 LABELS_URL = "https://www.robots.ox.ac.uk/~vgg/data/flowers/102/imagelabels.mat"
 
@@ -146,9 +146,7 @@ class OxfordFlowers102Dataset(Dataset):
     Note: images are not shuffled by default.
     """
 
-    def __init__(
-        self, root_dir: str = ROOT_DATA_DIR, download: bool = False, transforms=[]
-    ):
+    def __init__(self, root_dir: str = ROOT_DATA_DIR, download: bool = False, transforms=[]):
 
         self.transform = torchvision.transforms.Compose(transforms)
         self.root_dir = Path(root_dir)
