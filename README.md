@@ -1,5 +1,10 @@
 # flower-classifier
 
+*Authors: Jeremy Jordan and John Huffman*
+
+John and I were walking through a garden one day and kept pointing out flowers that we thought looked cool. The only problem was... we didn't know the names of any of the flowers! As machine learning engineers, our first thought was "let's build an image classifier" and this project was born. 
+
+
 ## Getting started
 
 1. Spin up a [Colab notebook](https://colab.research.google.com/).
@@ -17,8 +22,4 @@ ColabCode(port=10000, mount_drive=True)
 git clone https://github.com/jeremyjordan/flower-classifier.git
 ```
 
-Note: You may need to configure `git` on the remote server.
-```
-git config --global user.name "Jeremy Jordan"
-git config --global user.email ""
-```
+6. Run `make init` to set up the project.
