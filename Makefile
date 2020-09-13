@@ -8,6 +8,9 @@ format:
 	isort . --multi-line VERTICAL_HANGING_INDENT --trailing-comma
 	flake8
 
+test:
+	python3 -m pytest tests/ --cov=flower_classifier/
+
 check:
 	pre-commit run --all-files
 
