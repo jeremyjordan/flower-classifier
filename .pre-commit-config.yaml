@@ -13,4 +13,4 @@ repos:
     rev: 5.5.2
     hooks:
       - id: isort
-        args: [--check-only]
+        args: [--multi-line, VERTICAL_HANGING_INDENT, --trailing-comma, --check-only]
