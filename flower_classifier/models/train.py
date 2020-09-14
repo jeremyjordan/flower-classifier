@@ -62,6 +62,6 @@ if __name__ == "__main__":
     model = FlowerClassifier(network=network, learning_rate=0.01)
     data_module = OxfordFlowersDataModule(batch_size=32)
     logger = WandbLogger(project="flowers", tags=["oxford102"])
-    checkpoint_callback = ModelCheckpoint(monitor="val/loss", save_top_k=3)
-    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1, callbacks=[checkpoint_callback])
+    checkpoint_callback = ModelCheckpoint(save_top_k=3, filepath=logger.experiment.dir)
+    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1, checkpoint_callback=checkpoint_callback)
     trainer.fit(model, datamodule=data_module)
