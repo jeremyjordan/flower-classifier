@@ -4,8 +4,9 @@ import torch.nn as nn
 
 
 class FlowerClassifier(pl.LightningModule):
-    def __init__(self, network):
+    def __init__(self, network, learning_rate=1e-3):
         super().__init__()
+        self.save_hyperparameters("learning_rate")
         self.network = network
         self.criterion = nn.CrossEntropyLoss()
         self.accuracy_metric = pl.metrics.Accuracy()
@@ -38,13 +39,13 @@ class FlowerClassifier(pl.LightningModule):
         step_result = self._step(batch)
         loss = step_result["loss"]
         acc = step_result["accuracy"]
-        result = pl.EvalResult()
+        result = pl.EvalResult(checkpoint_on=loss)
         result.log("val/loss", loss)
         result.log("val/acc", acc)
         return result
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=1e-3)
+        return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
 
 
 if __name__ == "__main__":
@@ -57,8 +58,8 @@ if __name__ == "__main__":
     from flower_classifier.models.baseline import BaselineResnet
 
     network = BaselineResnet()
-    model = FlowerClassifier(network=network)
+    model = FlowerClassifier(network=network, learning_rate=0.01)
     data_module = OxfordFlowersDataModule(batch_size=32)
-    logger = WandbLogger(project="test", tags=["test"])
-    trainer = Trainer(logger=logger, overfit_pct=0.1, checkpoint_callback=False, row_log_interval=1)
+    logger = WandbLogger(project="flowers", tags=["oxford102"])
+    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1)
     trainer.fit(model, datamodule=data_module)
