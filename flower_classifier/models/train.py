@@ -50,6 +50,7 @@ class FlowerClassifier(pl.LightningModule):
 
 if __name__ == "__main__":
     from pytorch_lightning import Trainer
+    from pytorch_lightning.callbacks import ModelCheckpoint
     from pytorch_lightning.loggers import WandbLogger
 
     from flower_classifier.datasets.oxford_flowers import (
@@ -61,5 +62,6 @@ if __name__ == "__main__":
     model = FlowerClassifier(network=network, learning_rate=0.01)
     data_module = OxfordFlowersDataModule(batch_size=32)
     logger = WandbLogger(project="flowers", tags=["oxford102"])
-    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1)
+    checkpoint_callback = ModelCheckpoint(monitor="val/loss", save_top_k=3)
+    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1, callbacks=[checkpoint_callback])
     trainer.fit(model, datamodule=data_module)
