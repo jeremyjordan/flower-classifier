@@ -8,6 +8,7 @@ from torchvision.models import resnet34
 class BaselineResnet(nn.Module):
     def __init__(self, n_classes=102):
         super().__init__()
+        assert n_classes > 0, "must have at least one class"
 
         resnet = resnet34(pretrained=True)
         self.backbone = nn.Sequential(OrderedDict(list(resnet.named_children())[:-1]))

@@ -4,6 +4,7 @@
 
 John and I were walking through a garden one day and kept pointing out flowers that we thought looked cool. The only problem was... we didn't know the names of any of the flowers! As machine learning engineers, our first thought was "let's build an image classifier" and this project was born. 
 
+![Passion Flower](assets/example.jpg)
 
 ## Getting started
 
