@@ -38,7 +38,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ steps.data-test-cache.outputs.dir }}
-          key: ${{ hashFiles('**/*.jpg') }}
+          key: ${{ hashFiles('**/*.jpg', '*.tgz', '*.mat') }}
       - name: Test with pytest
         run: |
-          pytest
+          python -m pytest tests/ --cov=flower_classifier/ --cov-report term-missing
