@@ -2,8 +2,9 @@ from pathlib import Path
 
 import torch
 
-USER_CACHE_DIR = Path(".data_test_cache")
-USER_CACHE_DIR.mkdir(exist_ok=True, parents=True)
+CACHE_DIR = Path(".data_test_cache")
+CACHE_DIR.mkdir(exist_ok=True, parents=True)
+USER_CACHE_DIR = str(CACHE_DIR)
 
 
 class RandomDataset(torch.utils.data.Dataset):
