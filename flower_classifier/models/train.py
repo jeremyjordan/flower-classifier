@@ -53,9 +53,7 @@ if __name__ == "__main__":
     from pytorch_lightning.callbacks import ModelCheckpoint
     from pytorch_lightning.loggers import WandbLogger
 
-    from flower_classifier.datasets.oxford_flowers import (
-        OxfordFlowersDataModule,
-    )
+    from flower_classifier.datasets.oxford_flowers import OxfordFlowersDataModule
     from flower_classifier.models.baseline import BaselineResnet
 
     network = BaselineResnet()
