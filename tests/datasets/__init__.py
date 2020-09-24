@@ -4,7 +4,7 @@ import torch
 
 CACHE_DIR = Path(".data_test_cache")
 CACHE_DIR.mkdir(exist_ok=True, parents=True)
-USER_CACHE_DIR = str(CACHE_DIR)
+TEST_CACHE_DIR = str(CACHE_DIR)
 
 
 class RandomDataset(torch.utils.data.Dataset):
