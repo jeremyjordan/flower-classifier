@@ -1,5 +1,6 @@
 import pytest
 import torch
+import torchvision
 
 from flower_classifier.datasets.oxford_flowers import (
     OxfordFlowers102Dataset,
@@ -10,7 +11,12 @@ from tests.datasets import TEST_CACHE_DIR
 
 @pytest.fixture(scope="module")
 def oxford_dataset() -> torch.utils.data.Dataset:
-    dataset = OxfordFlowers102Dataset(root_dir=TEST_CACHE_DIR, download=True)
+    transforms = [
+        torchvision.transforms.RandomResizedCrop(224),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ]
+    dataset = OxfordFlowers102Dataset(root_dir=TEST_CACHE_DIR, download=True, transforms=transforms)
     return dataset
 
 
