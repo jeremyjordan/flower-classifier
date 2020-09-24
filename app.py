@@ -47,7 +47,7 @@ if checkpoint_file:
 photo_bytes = st.file_uploader("Input image:", ["png", "jpg", "jpeg"])
 if photo_bytes:
     pil_image = Image.open(photo_bytes).convert("RGB")
-    st.image(pil_image, caption="Input image")
+    st.image(pil_image, caption="Input image", width=480)
     inputs = torchvision.transforms.Compose(
         [
             torchvision.transforms.ToTensor(),
