@@ -19,5 +19,10 @@ def trainer() -> pl.Trainer:
 
 
 @pytest.mark.download
-def test_training_step(lightning_module, trainer, oxford_dataset):
+def test_training_step_dataloaders(lightning_module, trainer, oxford_dataset):
     trainer.fit(lightning_module, train_dataloader=oxford_dataset, val_dataloaders=oxford_dataset)
+
+
+@pytest.mark.download
+def test_training_step_datamodule(lightning_module, trainer, oxford_datamodule):
+    trainer.fit(lightning_module, datamodule=oxford_datamodule)
