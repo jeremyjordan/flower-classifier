@@ -12,20 +12,18 @@ def network():
     return network
 
 
-@pytest.mark.parametrize("batch_size, img_height, img_width", [(1, 256, 256), (8, 100, 300), (4, 32, 32)])
+@pytest.mark.parametrize(
+    "batch_size, img_height, img_width",
+    [(1, 256, 256), (8, 100, 300), (1, 33, 33)],
+)
 def test_expected_input_shape(network: torch.nn.Module, batch_size: int, img_height: int, img_width: int):
     example_input_array = torch.zeros(batch_size, 3, img_height, img_width)
     _ = network(example_input_array)
 
 
-@pytest.mark.parametrize(
-    "batch_size, img_height, img_width",
-    [
-        (1, 4, 4),  # TODO: find exact boundary
-    ],
-)
-def test_input_too_small(network: torch.nn.Module, batch_size: int, img_height: int, img_width: int):
-    example_input_array = torch.zeros(batch_size, 3, img_height, img_width)
+@pytest.mark.parametrize("img_height, img_width", [(4, 4), (32, 32)])
+def test_input_too_small(network: torch.nn.Module, img_height: int, img_width: int):
+    example_input_array = torch.zeros(1, 3, img_height, img_width)
     with pytest.raises(ValueError):
         _ = network(example_input_array)
 
@@ -40,7 +38,7 @@ def test_input_no_batch_dim(network: torch.nn.Module, img_height: int, img_width
         _ = network(example_input_array)
 
 
-@pytest.mark.parametrize("batch_size, img_height, img_width", [(1, 256, 256), (8, 100, 300), (4, 32, 32)])
+@pytest.mark.parametrize("batch_size, img_height, img_width", [(1, 256, 256), (8, 100, 300), (1, 33, 33)])
 def test_expected_output_shape(network: torch.nn.Module, batch_size: int, img_height: int, img_width: int):
     example_input_array = torch.zeros(batch_size, 3, img_height, img_width)
     outputs = network(example_input_array)
