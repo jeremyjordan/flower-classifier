@@ -9,7 +9,7 @@ format:
 	flake8
 
 test:
-	python3 -m pytest tests/ --cov=flower_classifier/ --cov-report term-missing -m "not download"
+	python3 -m pytest tests/ -m "not download" --cov=flower_classifier/ --cov-report term-missing --cov-config=tests/.coveragerc
 
 check:
 	pre-commit run --all-files

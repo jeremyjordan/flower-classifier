@@ -46,22 +46,3 @@ class FlowerClassifier(pl.LightningModule):
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
-
-
-if __name__ == "__main__":
-    from pytorch_lightning import Trainer
-    from pytorch_lightning.callbacks import ModelCheckpoint
-    from pytorch_lightning.loggers import WandbLogger
-
-    from flower_classifier.datasets.oxford_flowers import (
-        OxfordFlowersDataModule,
-    )
-    from flower_classifier.models.baseline import BaselineResnet
-
-    network = BaselineResnet()
-    model = FlowerClassifier(network=network, learning_rate=0.01)
-    data_module = OxfordFlowersDataModule(batch_size=32)
-    logger = WandbLogger(project="flowers", tags=["oxford102"])
-    checkpoint_callback = ModelCheckpoint(save_top_k=3, filepath=logger.experiment.dir)
-    trainer = Trainer(gpus=1, logger=logger, row_log_interval=1, checkpoint_callback=checkpoint_callback)
-    trainer.fit(model, datamodule=data_module)

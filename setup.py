@@ -16,4 +16,5 @@ setup(
     version="0.1",
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     install_requires=load_requirements(PATH_ROOT),
+    entry_points={"console_scripts": ["flower_classifier=flower_classifier.cli:app"]},
 )
