@@ -1,5 +1,5 @@
 init:
-	pip install -r requirements-dev.txt
+	pip install --upgrade -r requirements-dev.txt
 	pip install -e .
 	pre-commit install
 
@@ -9,7 +9,7 @@ format:
 	flake8
 
 test:
-	python3 -m pytest tests/ --cov=flower_classifier/
+	python3 -m pytest tests/ --cov=flower_classifier/ --cov-report term-missing -m "not download"
 
 check:
 	pre-commit run --all-files
