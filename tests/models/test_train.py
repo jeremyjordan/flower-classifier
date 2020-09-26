@@ -2,7 +2,7 @@ import pytest
 import pytorch_lightning as pl
 
 from flower_classifier.models.baseline import BaselineResnet
-from flower_classifier.models.train import FlowerClassifier
+from flower_classifier.models.classifier import FlowerClassifier
 
 
 @pytest.fixture(scope="module")
