@@ -5,4 +5,5 @@ six==1.15.0
 streamlit==0.67.0
 torch==1.6.0
 torchvision==0.7.0
+typer==0.3.2
 wandb==0.10.2
