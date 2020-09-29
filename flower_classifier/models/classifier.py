@@ -2,6 +2,9 @@ import pytorch_lightning as pl
 import torch
 import torch.nn as nn
 
+from flower_classifier.datasets.oxford_flowers import NAMES
+from flower_classifier.visualizations import generate_confusion_matrix
+
 
 class FlowerClassifier(pl.LightningModule):
     def __init__(self, network, learning_rate=1e-3):
@@ -10,6 +13,7 @@ class FlowerClassifier(pl.LightningModule):
         self.network = network
         self.criterion = nn.CrossEntropyLoss()
         self.accuracy_metric = pl.metrics.Accuracy()
+        self.cm_metric = pl.metrics.ConfusionMatrix()
 
     @property
     def example_input_array(self):
@@ -24,7 +28,7 @@ class FlowerClassifier(pl.LightningModule):
         loss = self.criterion(logits, labels)
         preds = nn.functional.softmax(logits, dim=1).argmax(1)
         acc = self.accuracy_metric(preds, labels)
-        return {"loss": loss, "accuracy": acc}
+        return {"loss": loss, "accuracy": acc, "preds": preds, "labels": labels}
 
     def training_step(self, batch, batch_idx):
         step_result = self._step(batch)
@@ -42,7 +46,19 @@ class FlowerClassifier(pl.LightningModule):
         result = pl.EvalResult(checkpoint_on=loss)
         result.log("val/loss", loss)
         result.log("val/acc", acc)
+        result.prediction = step_result["preds"]
+        result.target = step_result["labels"]
         return result
+
+    def validation_epoch_end(self, validation_step_outputs):
+        if self.current_epoch > 0:
+            epoch_preds = validation_step_outputs.prediction
+            epoch_targets = validation_step_outputs.target
+            confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).numpy()
+            print(confusion_matrix.shape)
+            fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
+            if self.logger:
+                self.logger.experiment.log({"chart": fig})
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)

@@ -26,13 +26,19 @@ def train(
     max_epochs: int = 1000,
     gpu: bool = False,
     smoke_test: bool = False,
+    log_run: bool = True,
     data_dir: str = ROOT_DATA_DIR,
 ):
     network = BaselineResnet()
     model = FlowerClassifier(network=network, learning_rate=learning_rate)
     data_module = OxfordFlowersDataModule(batch_size=batch_size, data_dir=data_dir)
-    logger = WandbLogger(project="flowers", tags=["oxford102"])
-    checkpoint_callback = ModelCheckpoint(save_top_k=3, filepath=logger.experiment.dir)
+    if log_run:
+        logger = WandbLogger(project="flowers", tags=["oxford102"])
+        checkpoint_callback = ModelCheckpoint(save_top_k=3, filepath=logger.experiment.dir)
+    else:
+        logger = False
+        checkpoint_callback = False
+
     gradual_unfreezing = GradualUnfreezingCallback(warmup_epochs=1)
     trainer_args = {
         "gpus": -1 if gpu else None,
