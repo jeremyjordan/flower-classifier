@@ -41,4 +41,4 @@ jobs:
           key: ${{ hashFiles('**/*.jpg', '*.tgz', '*.mat') }}
       - name: Test with pytest
         run: |
-          python -m pytest tests/ --cov=flower_classifier/ --cov-report term-missing
+          python3 -m pytest tests/ --cov=flower_classifier/ --cov-report term-missing --cov-config=tests/.coveragerc
