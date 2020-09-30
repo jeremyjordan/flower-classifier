@@ -58,7 +58,7 @@ class FlowerClassifier(pl.LightningModule):
             print(confusion_matrix.shape)
             fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
             if self.logger:
-                self.logger.experiment.log({"chart": fig})
+                self.logger.experiment.log({f"confusion_matrix_{self.current_epoch}": fig})
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
