@@ -2,10 +2,7 @@ import pytest
 import torch
 import torchvision
 
-from flower_classifier.datasets.oxford_flowers import (
-    OxfordFlowers102Dataset,
-    OxfordFlowersDataModule,
-)
+from flower_classifier.datasets.oxford_flowers import OxfordFlowers102Dataset, OxfordFlowersDataModule
 from tests.datasets import TEST_CACHE_DIR
 
 

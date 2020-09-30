@@ -51,14 +51,13 @@ class FlowerClassifier(pl.LightningModule):
         return result
 
     def validation_epoch_end(self, validation_step_outputs):
-        if self.current_epoch > 0:
+        if self.current_epoch > 0 and self.current_epoch % 5 == 0:
             epoch_preds = validation_step_outputs.prediction
             epoch_targets = validation_step_outputs.target
             confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).numpy()
-            print(confusion_matrix.shape)
             fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
             if self.logger:
-                self.logger.experiment.log({f"confusion_matrix_{self.current_epoch}": fig})
+                self.logger.experiment.log({"confusion_matrix": fig})
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
