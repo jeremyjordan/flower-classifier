@@ -34,30 +34,27 @@ class FlowerClassifier(pl.LightningModule):
         step_result = self._step(batch)
         loss = step_result["loss"]
         acc = step_result["accuracy"]
-        result = pl.TrainResult(minimize=loss)
-        result.log("train/loss", loss)
-        result.log("train/acc", acc)
-        return result
+        metrics = {"train/loss": loss, "train/acc": acc}
+        self.logger.log_metrics(metrics, step=self.global_step)
+        return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
         step_result = self._step(batch)
-        loss = step_result["loss"]
-        acc = step_result["accuracy"]
-        result = pl.EvalResult(checkpoint_on=loss)
-        result.log("val/loss", loss)
-        result.log("val/acc", acc)
-        result.prediction = step_result["preds"]
-        result.target = step_result["labels"]
-        return result
+        return step_result
 
     def validation_epoch_end(self, validation_step_outputs):
+        loss = torch.stack([x["loss"] for x in validation_step_outputs]).mean()
+        acc = torch.stack([x["accuracy"] for x in validation_step_outputs]).mean()
+        metrics = {"val/loss": loss, "val/acc": acc}
+        self.logger.log_metrics(metrics, step=self.global_step)
         if self.current_epoch > 0 and self.current_epoch % 5 == 0:
-            epoch_preds = validation_step_outputs.prediction
-            epoch_targets = validation_step_outputs.target
+            epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
+            epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
             confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).cpu().numpy()
             fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
             if self.logger:
                 self.logger.experiment.log({"confusion_matrix": fig})
+        return metrics
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)

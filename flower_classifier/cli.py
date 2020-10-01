@@ -31,7 +31,8 @@ def train(
     model = FlowerClassifier(network=network, learning_rate=learning_rate)
     data_module = OxfordFlowersDataModule(batch_size=batch_size, data_dir=data_dir)
     if log_run:
-        logger = WandbLogger(project="test", tags=["oxford102"])
+        project = "test" if smoke_test else "flowers"
+        logger = WandbLogger(project=project, tags=["oxford102"])
         checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val/loss", filepath=logger.experiment.dir)
     else:
         logger = False
