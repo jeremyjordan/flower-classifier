@@ -31,8 +31,8 @@ def train(
     model = FlowerClassifier(network=network, learning_rate=learning_rate)
     data_module = OxfordFlowersDataModule(batch_size=batch_size, data_dir=data_dir)
     if log_run:
-        logger = WandbLogger(project="flowers", tags=["oxford102"])
-        checkpoint_callback = ModelCheckpoint(save_top_k=3, filepath=logger.experiment.dir)
+        logger = WandbLogger(project="test", tags=["oxford102"])
+        checkpoint_callback = ModelCheckpoint(save_top_k=3, monitor="val/loss", filepath=logger.experiment.dir)
     else:
         logger = False
         checkpoint_callback = False
@@ -40,12 +40,12 @@ def train(
     gradual_unfreezing = GradualUnfreezingCallback(warmup_epochs=5)
     trainer_args = {
         "gpus": -1 if gpu else None,
-        "max_epochs": 2 if smoke_test else max_epochs,
+        "max_epochs": 4 if smoke_test else max_epochs,
         "logger": logger,
         "row_log_interval": 1,
         "checkpoint_callback": checkpoint_callback,
         "callbacks": [gradual_unfreezing],
-        "overfit_batches": 10 if smoke_test else 0,
+        "overfit_batches": 5 if smoke_test else 0,
     }
     typer.echo(f"Trainer args: \n{pformat(trainer_args)}")
     trainer = Trainer(**trainer_args)

@@ -54,7 +54,7 @@ class FlowerClassifier(pl.LightningModule):
         if self.current_epoch > 0 and self.current_epoch % 5 == 0:
             epoch_preds = validation_step_outputs.prediction
             epoch_targets = validation_step_outputs.target
-            confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).numpy()
+            confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).cpu().numpy()
             fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
             if self.logger:
                 self.logger.experiment.log({"confusion_matrix": fig})
