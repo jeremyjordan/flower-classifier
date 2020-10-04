@@ -1,14 +1,12 @@
 import pytest
 import pytorch_lightning as pl
 
-from flower_classifier.models.baseline import BaselineResnet
 from flower_classifier.models.classifier import FlowerClassifier
 
 
 @pytest.fixture(scope="module")
 def lightning_module() -> pl.LightningModule:
-    network = BaselineResnet()
-    model = FlowerClassifier(network, learning_rate=0.01)
+    model = FlowerClassifier(architecture="resnet34", learning_rate=0.01)
     return model
 
 
