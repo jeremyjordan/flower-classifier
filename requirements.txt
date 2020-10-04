@@ -3,6 +3,7 @@ plotly==4.10.0
 pytorch-lightning==0.9.0
 scipy>=1.5.0
 streamlit==0.67.0
+timm==0.2.1
 torch==1.6.0
 torchvision==0.7.0
 typer==0.3.2
