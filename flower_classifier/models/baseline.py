@@ -12,8 +12,6 @@ class BaselineResnet(nn.Module):
 
         resnet = resnet34(pretrained=pretrained)
         self.backbone = nn.Sequential(OrderedDict(list(resnet.named_children())[:-1]))
-        for param in self.backbone.parameters():
-            param.requires_grad = False
         in_features = resnet.fc.in_features
         self.classifier = nn.Linear(in_features, n_classes)
 
