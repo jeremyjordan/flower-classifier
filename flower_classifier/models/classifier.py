@@ -15,6 +15,7 @@ class FlowerClassifier(pl.LightningModule):
         global_pool: str = "avg",
         learning_rate: float = 1e-3,
         num_classes: int = 102,
+        batch_size: int = 64,
     ):
         super().__init__()
         self.save_hyperparameters()

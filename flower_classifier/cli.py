@@ -28,13 +28,14 @@ def train(
     log_run: bool = True,
     data_dir: str = ROOT_DATA_DIR,
 ):
+    data_module = OxfordFlowersDataModule(batch_size=batch_size, data_dir=data_dir)
     model = FlowerClassifier(
         architecture=architecture,
         learning_rate=learning_rate,
         dropout_rate=dropout_rate,
         global_pool=global_pool,
+        batch_size=data_module.batch_size,
     )
-    data_module = OxfordFlowersDataModule(batch_size=batch_size, data_dir=data_dir)
     if log_run:
         project = "test" if smoke_test else "flowers"
         logger = WandbLogger(project=project, tags=["oxford102"])
