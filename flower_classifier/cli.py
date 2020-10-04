@@ -9,7 +9,6 @@ from pytorch_lightning.callbacks import ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from flower_classifier import ROOT_DATA_DIR
-from flower_classifier.callbacks.gradual_unfreezing import GradualUnfreezingCallback
 from flower_classifier.datasets.oxford_flowers import OxfordFlowersDataModule
 from flower_classifier.models.classifier import FlowerClassifier
 
@@ -44,14 +43,12 @@ def train(
         logger = False
         checkpoint_callback = False
 
-    gradual_unfreezing = GradualUnfreezingCallback(warmup_epochs=5)
     trainer_args = {
         "gpus": -1 if gpu else None,
         "max_epochs": 4 if smoke_test else max_epochs,
         "logger": logger,
         "row_log_interval": 1,
         "checkpoint_callback": checkpoint_callback,
-        "callbacks": [gradual_unfreezing],
         "overfit_batches": 5 if smoke_test else 0,
     }
     typer.echo(f"Trainer args: \n{pformat(trainer_args)}")
