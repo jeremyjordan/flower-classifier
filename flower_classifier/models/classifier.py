@@ -1,4 +1,5 @@
 import pytorch_lightning as pl
+import timm
 import torch
 import torch.nn as nn
 
@@ -7,10 +8,27 @@ from flower_classifier.visualizations import generate_confusion_matrix
 
 
 class FlowerClassifier(pl.LightningModule):
-    def __init__(self, network, learning_rate=1e-3):
+    def __init__(
+        self,
+        architecture: str,
+        dropout_rate: float = 0.0,
+        global_pool: str = "avg",
+        learning_rate: float = 1e-3,
+        num_classes: int = 102,
+    ):
         super().__init__()
-        self.save_hyperparameters("learning_rate")
-        self.network = network
+        self.save_hyperparameters()
+
+        # sanity check values
+        pool_options = {"avg", "max", "avgmax", "avgmaxc"}
+        model_options = timm.list_models(pretrained=True)
+        assert global_pool in pool_options, f"global_pool must be one of: {pool_options}"
+        assert architecture in model_options, "model architecture not recognized"
+
+        # define training objects
+        self.network = timm.create_model(
+            architecture, pretrained=True, num_classes=num_classes, drop_rate=dropout_rate, global_pool=global_pool
+        )
         self.criterion = nn.CrossEntropyLoss()
         self.accuracy_metric = pl.metrics.Accuracy()
         self.cm_metric = pl.metrics.ConfusionMatrix()
