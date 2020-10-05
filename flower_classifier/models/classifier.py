@@ -76,4 +76,8 @@ class FlowerClassifier(pl.LightningModule):
         return metrics
 
     def configure_optimizers(self):
-        return torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            optimizer, max_lr=self.hparams.learning_rate, steps_per_epoch=116, epochs=5
+        )
+        return [optimizer], [scheduler]
