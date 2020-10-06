@@ -5,7 +5,7 @@ from pprint import pformat
 
 import typer
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import LearningRateLogger, ModelCheckpoint
 from pytorch_lightning.loggers import WandbLogger
 
 from flower_classifier import ROOT_DATA_DIR
@@ -44,6 +44,7 @@ def train(
         logger = False
         checkpoint_callback = False
 
+    lr_logger = LearningRateLogger(logging_interval="step")
     trainer_args = {
         "gpus": -1 if gpu else None,
         "max_epochs": 4 if smoke_test else max_epochs,
@@ -51,6 +52,7 @@ def train(
         "row_log_interval": 1,
         "checkpoint_callback": checkpoint_callback,
         "overfit_batches": 5 if smoke_test else 0,
+        "callbacks": [lr_logger],
     }
     typer.echo(f"Trainer args: \n{pformat(trainer_args)}")
     trainer = Trainer(**trainer_args)

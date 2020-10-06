@@ -54,7 +54,8 @@ class FlowerClassifier(pl.LightningModule):
         loss = step_result["loss"]
         acc = step_result["accuracy"]
         metrics = {"train/loss": loss, "train/acc": acc}
-        self.logger.log_metrics(metrics, step=self.global_step)
+        if self.logger:
+            self.logger.log_metrics(metrics, step=self.global_step)
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx):
@@ -65,14 +66,15 @@ class FlowerClassifier(pl.LightningModule):
         loss = torch.stack([x["loss"] for x in validation_step_outputs]).mean()
         acc = torch.stack([x["accuracy"] for x in validation_step_outputs]).mean()
         metrics = {"val/loss": loss, "val/acc": acc}
-        self.logger.log_metrics(metrics, step=self.global_step)
-        if self.current_epoch > 0 and self.current_epoch % 5 == 0:
-            epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
-            epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
-            confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).cpu().numpy()
-            fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
-            if self.logger:
-                self.logger.experiment.log({"confusion_matrix": fig})
+        if self.logger:
+            self.logger.log_metrics(metrics, step=self.global_step)
+            if self.current_epoch > 0 and self.current_epoch % 5 == 0:
+                epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
+                epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
+                confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).cpu().numpy()
+                fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
+                if self.logger:
+                    self.logger.experiment.log({"confusion_matrix": fig})
         return metrics
 
     def configure_optimizers(self):
