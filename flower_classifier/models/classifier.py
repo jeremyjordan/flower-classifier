@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 import timm
 import torch
 import torch.nn as nn
+from pytorch_lightning.metrics.functional.classification import confusion_matrix
 
 from flower_classifier.datasets.oxford_flowers import NAMES
 from flower_classifier.visualizations import generate_confusion_matrix
@@ -32,7 +33,6 @@ class FlowerClassifier(pl.LightningModule):
         )
         self.criterion = nn.CrossEntropyLoss()
         self.accuracy_metric = pl.metrics.Accuracy()
-        self.cm_metric = pl.metrics.ConfusionMatrix()
 
     @property
     def example_input_array(self):
@@ -53,7 +53,7 @@ class FlowerClassifier(pl.LightningModule):
         step_result = self._step(batch)
         loss = step_result["loss"]
         acc = step_result["accuracy"]
-        metrics = {"train/loss": loss, "train/acc": acc}
+        metrics = {"train/loss": loss, "train/acc": acc, "epoch": self.current_epoch}
         if self.logger:
             self.logger.log_metrics(metrics, step=self.global_step)
         return {"loss": loss}
@@ -71,15 +71,22 @@ class FlowerClassifier(pl.LightningModule):
             if self.current_epoch > 0 and self.current_epoch % 5 == 0:
                 epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
                 epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
-                confusion_matrix = self.cm_metric(epoch_preds, epoch_targets).cpu().numpy()
-                fig = generate_confusion_matrix(confusion_matrix, class_names=NAMES)  # TODO remove this hardcoding
+                cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparmas.num_classesn).cpu().numpy()
+                fig = generate_confusion_matrix(cm, class_names=NAMES)  # TODO remove this hardcoding
                 if self.logger:
                     self.logger.experiment.log({"confusion_matrix": fig})
         return metrics
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            optimizer, max_lr=self.hparams.learning_rate, steps_per_epoch=116, epochs=5
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode="min", patience=5, min_lr=1e6, verbose=True
         )
-        return [optimizer], [scheduler]
+        scheduler_dict = {
+            "scheduler": scheduler,
+            "interval": "epoch",  # scheduler's step size
+            "frequency": 1,  # frequency of the scheduler
+            "monitor": "val/loss",
+        }
+
+        return [optimizer], [scheduler_dict]

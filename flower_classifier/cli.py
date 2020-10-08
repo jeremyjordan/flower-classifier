@@ -49,7 +49,7 @@ def train(
         "gpus": -1 if gpu else None,
         "max_epochs": 4 if smoke_test else max_epochs,
         "logger": logger,
-        "row_log_interval": 1,
+        "log_every_n_steps": 1,
         "checkpoint_callback": checkpoint_callback,
         "overfit_batches": 5 if smoke_test else 0,
         "callbacks": [lr_logger],
