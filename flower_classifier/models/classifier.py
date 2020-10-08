@@ -71,7 +71,7 @@ class FlowerClassifier(pl.LightningModule):
             if self.current_epoch > 0 and self.current_epoch % 5 == 0:
                 epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
                 epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
-                cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparmas.num_classesn).cpu().numpy()
+                cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparams.num_classes).cpu().numpy()
                 fig = generate_confusion_matrix(cm, class_names=NAMES)  # TODO remove this hardcoding
                 if self.logger:
                     self.logger.experiment.log({"confusion_matrix": fig})
