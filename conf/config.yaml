@@ -1,0 +1,5 @@
+defaults:
+  - trainer: smoke_test
+  - model: default
+  - optimizer: adam
+  - dataset: random

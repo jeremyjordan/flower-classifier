@@ -1,0 +1,15 @@
+# @package _group_
+row_log_interval: 1
+logger:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  project: test
+  tags:
+    - oxford102
+  save_dir: ${hydra:run.dir}
+checkpoint_callback:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  save_top_k: 3
+  monitor: val/loss
+  filepath: ${hydra:run.dir}
+max_epochs: 4
+overfit_batches: 5

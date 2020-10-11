@@ -1,0 +1,3 @@
+# @package _group_
+_target_: torch.optim.Adam
+lr: ${model.learning_rate}
