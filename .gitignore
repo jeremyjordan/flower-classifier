@@ -1,6 +1,7 @@
 # Project specific
 lightning_logs/
 wandb/
+outputs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
