@@ -3,3 +3,8 @@ defaults:
   - model: default
   - optimizer: adam
   - dataset: random
+
+hydra:
+  run:
+    # Output directory for normal runs
+    dir: ./outputs/${now:%Y-%m-%d-%H-%M}

@@ -2,6 +2,8 @@
 You can run this script by calling `flower_classifier` in your terminal window.
 """
 
+import os
+
 import hydra
 from pytorch_lightning import Trainer
 
@@ -14,7 +16,10 @@ def train(cfg):
     model = FlowerClassifier(**cfg.model)
 
     logger = hydra.utils.instantiate(cfg.trainer.logger) or False
-    checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback) or False
+    experiment = getattr(logger, "experiment", None)
+    logger_dir = getattr(experiment, "dir", "logger")
+    checkpoints_dir = os.path.join(logger_dir, "{epoch}")
+    checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, filepath=checkpoints_dir) or False
 
     trainer_args = {**cfg.trainer, "logger": logger, "checkpoint_callback": checkpoint_callback}
     trainer = Trainer(**trainer_args)

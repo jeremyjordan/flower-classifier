@@ -8,4 +8,4 @@ timm==0.2.1
 torch==1.6.0
 torchvision==0.7.0
 typer==0.3.2
-wandb==0.10.2
+wandb==0.10.5
