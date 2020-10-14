@@ -3,6 +3,7 @@ defaults:
   - model: default
   - optimizer: adam
   - dataset: random
+  - lr_scheduler: reduce_on_plateau
 
 hydra:
   run:

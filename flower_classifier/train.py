@@ -13,7 +13,7 @@ from flower_classifier.models.classifier import FlowerClassifier
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
     data_module = hydra.utils.instantiate(cfg.dataset)
-    model = FlowerClassifier(**cfg.model)
+    model = FlowerClassifier(**cfg.model, optimizer_config=cfg.optimizer, lr_scheduler_config=cfg.lr_scheduler)
 
     logger = hydra.utils.instantiate(cfg.trainer.logger) or False
     experiment = getattr(logger, "experiment", None)

@@ -1,7 +1,9 @@
+import hydra
 import pytorch_lightning as pl
 import timm
 import torch
 import torch.nn as nn
+from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.metrics.functional.classification import confusion_matrix
 
 from flower_classifier.datasets.oxford_flowers import NAMES
@@ -17,9 +19,13 @@ class FlowerClassifier(pl.LightningModule):
         learning_rate: float = 1e-3,
         num_classes: int = 102,
         batch_size: int = 64,
+        optimizer_config: DictConfig = None,
+        lr_scheduler_config: DictConfig = None,
     ):
         super().__init__()
         self.save_hyperparameters()
+        self.optimizer_config = optimizer_config
+        self.lr_scheduler_config = lr_scheduler_config
 
         # sanity check values
         pool_options = {"avg", "max", "avgmax", "avgmaxc"}
@@ -78,15 +84,9 @@ class FlowerClassifier(pl.LightningModule):
         return metrics
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, mode="min", patience=5, min_lr=1e6, verbose=True
-        )
-        scheduler_dict = {
-            "scheduler": scheduler,
-            "interval": "epoch",  # scheduler's step size
-            "frequency": 1,  # frequency of the scheduler
-            "monitor": "val/loss",
-        }
+        optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
+        scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
+        scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
+        scheduler_dict["scheduler"] = scheduler
 
         return [optimizer], [scheduler_dict]

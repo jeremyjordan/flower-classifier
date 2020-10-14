@@ -1,0 +1,7 @@
+# @package _group_
+scheduler:
+  _target_: torch.optim.lr_scheduler.OneCycleLR
+  max_lr: ${model.learning_rate}
+  total_steps: 20000
+interval: step
+frequency: 1
