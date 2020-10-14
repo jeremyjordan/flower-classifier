@@ -1,7 +1,7 @@
 hydra-core==1.0.3
 Pillow==7.2.0
 plotly==4.10.0
-pytorch-lightning==0.9.1rc4
+pytorch-lightning==0.10
 scipy>=1.5.0
 streamlit==0.67.0
 timm==0.2.1
