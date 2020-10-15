@@ -1,3 +1,5 @@
+import logging
+
 import hydra
 import pytorch_lightning as pl
 import timm
@@ -8,6 +10,8 @@ from pytorch_lightning.metrics.functional.classification import confusion_matrix
 
 from flower_classifier.datasets.oxford_flowers import NAMES
 from flower_classifier.visualizations import generate_confusion_matrix
+
+logger = logging.getLogger(__name__)
 
 
 class FlowerClassifier(pl.LightningModule):
@@ -84,9 +88,13 @@ class FlowerClassifier(pl.LightningModule):
         return metrics
 
     def configure_optimizers(self):
-        optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
-        scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
-        scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
-        scheduler_dict["scheduler"] = scheduler
-
-        return [optimizer], [scheduler_dict]
+        if self.optimizer_config and self.lr_scheduler_config:
+            optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
+            scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
+            scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
+            scheduler_dict["scheduler"] = scheduler
+            return [optimizer], [scheduler_dict]
+        else:
+            logger.info("Hydra configuration not set, using default optimizer.")
+            optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+            return optimizer
