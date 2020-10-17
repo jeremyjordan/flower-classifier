@@ -24,3 +24,4 @@ git clone https://github.com/jeremyjordan/flower-classifier.git
 ```
 
 6. Run `make init` to set up the project.
+7. Start a training job by running `train`, optionally providing configuration options.
