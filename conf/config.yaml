@@ -1,8 +1,8 @@
 defaults:
-  - trainer: smoke_test
+  - trainer: colab
   - model: default
   - optimizer: adam
-  - dataset: random
+  - dataset: oxford
   - lr_scheduler: reduce_on_plateau
 
 hydra:
