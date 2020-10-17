@@ -1,6 +1,7 @@
 # Project specific
 lightning_logs/
 wandb/
+outputs/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -132,3 +133,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Mac specific
+.DS_Store

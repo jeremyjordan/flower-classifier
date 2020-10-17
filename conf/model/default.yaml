@@ -1,0 +1,5 @@
+# @package _group_
+architecture: resnet34
+learning_rate: 0.001
+dropout_rate: 0.4
+global_pool: avg

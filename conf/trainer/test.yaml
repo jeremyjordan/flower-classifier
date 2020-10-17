@@ -1,0 +1,15 @@
+# @package _group_
+row_log_interval: 1
+logger:
+  _target_: pytorch_lightning.loggers.WandbLogger
+  project: test
+  offline: True
+  tags:
+    - oxford102
+checkpoint_callback:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  save_top_k: 1
+  monitor: val/loss
+  filepath: ./{epoch}
+max_epochs: 5
+overfit_batches: 2

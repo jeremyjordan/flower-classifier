@@ -3,6 +3,7 @@ import torch
 import torchvision
 
 from flower_classifier.datasets.oxford_flowers import OxfordFlowers102Dataset, OxfordFlowersDataModule
+from flower_classifier.datasets.random import RandomDataModule
 from tests.datasets import TEST_CACHE_DIR
 
 
@@ -26,4 +27,10 @@ def oxford_dataloader(oxford_dataset):
 @pytest.fixture(scope="module")
 def oxford_datamodule(oxford_dataset):
     data_module = OxfordFlowersDataModule(data_dir=TEST_CACHE_DIR, batch_size=32)
+    return data_module
+
+
+@pytest.fixture(scope="module")
+def random_datamodule(oxford_dataset):
+    data_module = RandomDataModule(batch_size=32)
     return data_module

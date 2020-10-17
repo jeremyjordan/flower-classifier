@@ -1,0 +1,3 @@
+# @package _group_
+_target_: flower_classifier.datasets.random.RandomDataModule
+batch_size: 16

@@ -12,7 +12,7 @@ def lightning_module() -> pl.LightningModule:
 
 @pytest.fixture(scope="module")
 def trainer() -> pl.Trainer:
-    trainer = pl.Trainer(fast_dev_run=True)
+    trainer = pl.Trainer(fast_dev_run=True, logger=False)
     return trainer
 
 
@@ -24,3 +24,7 @@ def test_training_step_dataloaders(lightning_module, trainer, oxford_dataloader)
 @pytest.mark.download
 def test_training_step_datamodule(lightning_module, trainer, oxford_datamodule):
     trainer.fit(lightning_module, datamodule=oxford_datamodule)
+
+
+def test_training_step_offline(lightning_module, trainer, random_datamodule):
+    trainer.fit(lightning_module, datamodule=random_datamodule)
