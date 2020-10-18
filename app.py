@@ -62,7 +62,7 @@ with st.beta_expander("View top 3 predictions"):
     st.table({"predicted class": labels, "scores": scores})
 
 
-with st.beta_expander("View full predictions distribution"):
+with st.beta_expander("View full prediction distribution"):
     import pandas as pd
 
     data = {"scores": preds.squeeze().detach().numpy(), "flower": oxford_idx_to_names}
