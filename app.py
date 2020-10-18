@@ -70,3 +70,10 @@ with st.beta_expander("View full prediction distribution"):
     fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
     # https://github.com/streamlit/streamlit/issues/2220
     st.plotly_chart(fig, use_container_width=True)
+
+
+with st.beta_expander("Supported flower breeds"):
+    breeds = "The model can recognize the following breeds:"
+    for flower in oxford_idx_to_names:
+        breeds += f"\n - {flower}"
+    st.markdown(breeds)
