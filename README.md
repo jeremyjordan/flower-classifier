@@ -23,6 +23,21 @@ ColabCode(port=10000, mount_drive=True)
 git clone https://github.com/jeremyjordan/flower-classifier.git
 ```
 
-6. Run `make init` to set up the project.
+6. Run `make colab` to set up the project on your Colab instance (or run `make init` if running locally).
 7. Start a training job by running `train`, optionally providing configuration options.
     - eg. If you want to do a quick check, you can run `train trainer=smoke_test`
+
+
+## Contributing
+
+In order to commit code from a Colab machine, you'll need to do the following:
+
+1. Make sure you have an Github auth token (https://github.com/settings/tokens)
+2. Configure the `git` settings on the machine
+```
+git config --global user.name "Jeremy Jordan"
+git config --global user.email ""
+gh auth login --with-token <<< INSERT_TOKEN_HERE
+```
+
+Note: make sure you've ran `make colab` before setting this up.
