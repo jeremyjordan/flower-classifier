@@ -51,6 +51,7 @@ pil_image = get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
 inputs = torchvision.transforms.Compose(
     [
+        torchvision.transforms.Resize(512),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]
