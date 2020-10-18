@@ -1,4 +1,8 @@
+import os
+import tempfile
+
 import plotly.express as px
+import requests
 import streamlit as st
 import torch.nn as nn
 import torchvision
@@ -13,14 +17,17 @@ st.title("Flower Classification")
 
 
 @st.cache
-def download_weights(weights_url):
-    import requests
+def download_model(weights_url):
 
-    weights_path = "model.ckpt"
-    r = requests.get(weights_url, allow_redirects=True)
-    with open(weights_path, "wb") as f:
-        f.write(r.content)
-    return weights_path
+    with tempfile.TemporaryDirectory() as tmpdir:
+        checkpoint_path = os.path.join(tmpdir, "model.ckpt")
+        r = requests.get(weights_url, allow_redirects=True)
+        with open(checkpoint_path, "wb") as f:
+            f.write(r.content)
+        model = FlowerClassifier.load_from_checkpoint(checkpoint_path=checkpoint_path, strict=False)
+        model.freeze()
+
+    return model
 
 
 @st.cache
@@ -39,8 +46,7 @@ def get_photo():
 
 
 # MAIN
-weights_path = download_weights(WEIGHTS_URL)
-model = load_model(weights_path)
+model = download_model(WEIGHTS_URL)
 pil_image = get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
 inputs = torchvision.transforms.Compose(
