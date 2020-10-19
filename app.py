@@ -2,68 +2,85 @@ import os
 import tempfile
 
 import plotly.express as px
+import requests
 import streamlit as st
 import torch.nn as nn
 import torchvision
 from PIL import Image
 
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
-from flower_classifier.models.baseline import BaselineResnet
 from flower_classifier.models.classifier import FlowerClassifier
 
-st.set_option("deprecation.showfileUploaderEncoding", False)
+WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v0.1/efficientnet_b3a_example.ckpt"
 
-st.title("Flower classifier")
+st.title("Flower Classification")
 
-# support multiple classification taxonomies (eventually)
-idx_to_name = {"Oxford Flowers 102": oxford_idx_to_names}
-dataset = st.selectbox("Choose a classification dataset:", list(idx_to_name.keys()))
 
-# authenticate with wandb
-api_key = st.text_input("Enter WandB API key:", "")
-os.environ["WANDB_API_KEY"] = api_key.strip(" ")
-if api_key == "":
-    st.stop()
+@st.cache
+def download_model(weights_url):
 
-from flower_classifier.artifacts import download_model_checkpoint, list_run_files, list_runs  # noqa: E402
-
-runs = list_runs(project="flowers", entity="jeremytjordan")
-run_id = st.selectbox("Model training run ID:", runs)
-
-if not run_id:
-    st.stop()
-
-# TODO we can update our checkpoint callback to always save a best.ckpt and get rid of this
-files = list_run_files(run_id=run_id)
-checkpoint_file = st.selectbox("Choose a checkpoint file:", [None, *files])
-if checkpoint_file:
     with tempfile.TemporaryDirectory() as tmpdir:
-        with st.spinner("Downloading model weights..."):
-            checkpoint = download_model_checkpoint(checkpoint_file, run_id, tmpdir)
-            checkpoint_path = os.path.join(tmpdir, checkpoint)
-        network = BaselineResnet(pretrained=False)
-        model = FlowerClassifier.load_from_checkpoint(checkpoint_path=checkpoint_path, network=network)
-    st.write("Model is ready to make predictions!")
+        checkpoint_path = os.path.join(tmpdir, "model.ckpt")
+        r = requests.get(weights_url, allow_redirects=True)
+        with open(checkpoint_path, "wb") as f:
+            f.write(r.content)
+        model = FlowerClassifier.load_from_checkpoint(checkpoint_path=checkpoint_path, strict=False)
+        model.freeze()
 
-photo_bytes = st.file_uploader("Input image:", ["png", "jpg", "jpeg"])
-if not photo_bytes:
-    st.stop()
+    return model
 
-pil_image = Image.open(photo_bytes).convert("RGB")
+
+@st.cache
+def load_model(weights_path):
+    model = FlowerClassifier.load_from_checkpoint(checkpoint_path=weights_path, strict=False)
+    model.freeze()
+    return model
+
+
+def get_photo():
+    photo_bytes = st.file_uploader("Input image:", ["png", "jpg", "jpeg"])
+    if not photo_bytes:
+        st.stop()
+    pil_image = Image.open(photo_bytes).convert("RGB")
+    return pil_image
+
+
+# MAIN
+model = download_model(WEIGHTS_URL)
+pil_image = get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
 inputs = torchvision.transforms.Compose(
     [
+        torchvision.transforms.Resize(512),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]
 )(pil_image)
 logits = model(inputs.unsqueeze(0))
-pred = nn.functional.softmax(logits, dim=1)
-top_pred = pred.max(1)
+preds = nn.functional.softmax(logits, dim=1)
+top_pred = preds.max(1)
 label = oxford_idx_to_names[top_pred.indices.item()]
-score = top_pred.values.item()
 st.write(f"Prediction: {label}")
-st.write(f"Score: {score:0.4}")
 
-pred_dist = px.bar(y=pred.squeeze().detach().numpy(), x=oxford_idx_to_names, title="Prediction Distribution")
-st.plotly_chart(pred_dist)
+with st.beta_expander("View top 3 predictions"):
+    top_3 = preds.topk(k=3, dim=1)
+    labels = [oxford_idx_to_names[idx.item()] for idx in top_3.indices[0]]
+    scores = top_3.values[0].detach().cpu().numpy()
+    st.table({"predicted class": labels, "scores": scores})
+
+
+with st.beta_expander("View full prediction distribution"):
+    import pandas as pd
+
+    data = {"scores": preds.squeeze().detach().numpy(), "flower": oxford_idx_to_names}
+    df = pd.DataFrame(data)
+    fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
+    # https://github.com/streamlit/streamlit/issues/2220
+    st.plotly_chart(fig, use_container_width=True)
+
+
+with st.beta_expander("Supported flower breeds"):
+    breeds = "The model can recognize the following breeds:"
+    for flower in oxford_idx_to_names:
+        breeds += f"\n - {flower}"
+    st.markdown(breeds)

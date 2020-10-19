@@ -1,5 +1,7 @@
 # flower-classifier
 
+![Tests](https://github.com/jeremyjordan/flower-classifier/workflows/Tests/badge.svg?branch=master) [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/jeremyjordan/flower-classifier/app.py)
+
 *Authors: Jeremy Jordan and John Huffman*
 
 John and I were walking through a garden one day and kept pointing out flowers that we thought looked cool. The only problem was... we didn't know the names of any of the flowers! As machine learning engineers, our first thought was "let's build an image classifier" and this project was born. 
