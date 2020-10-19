@@ -6,6 +6,7 @@ import os
 
 import hydra
 from pytorch_lightning import Trainer
+from pytorch_lightning.callbacks import LearningRateLogger
 
 from flower_classifier.models.classifier import FlowerClassifier
 
@@ -21,7 +22,13 @@ def train(cfg):
     checkpoints_dir = os.path.join(logger_dir, "{epoch}")
     checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, filepath=checkpoints_dir) or False
 
-    trainer_args = {**cfg.trainer, "logger": logger, "checkpoint_callback": checkpoint_callback}
+    lr_logger = LearningRateLogger(logging_interval="step")
+    trainer_args = {
+        **cfg.trainer,
+        "logger": logger,
+        "checkpoint_callback": checkpoint_callback,
+        "callbacks": [lr_logger],
+    }
     trainer = Trainer(**trainer_args)
 
     trainer.fit(model, datamodule=data_module)
