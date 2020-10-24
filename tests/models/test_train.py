@@ -6,7 +6,7 @@ from flower_classifier.models.classifier import FlowerClassifier
 
 @pytest.fixture(scope="module")
 def lightning_module() -> pl.LightningModule:
-    model = FlowerClassifier(architecture="resnet34", learning_rate=0.01)
+    model = FlowerClassifier(architecture="resnet34")
     return model
 
 
