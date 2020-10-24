@@ -14,7 +14,7 @@ from flower_classifier.visualizations import generate_confusion_matrix
 logger = logging.getLogger(__name__)
 
 # add default for cases where we don't initialize with hydra main
-DEFAULT_OPTIMIZER = OmegaConf.create({"_target_": "torch.optim.Adam", "lr": "0.001"})
+DEFAULT_OPTIMIZER = OmegaConf.create({"_target_": "torch.optim.Adam", "lr": 0.001})
 
 
 class FlowerClassifier(pl.LightningModule):
@@ -91,11 +91,10 @@ class FlowerClassifier(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
-        scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
-
-        if scheduler is None:
+        if self.lr_scheduler_config is None:
             return optimizer
 
+        scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
         scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
         scheduler_dict["scheduler"] = scheduler
         return [optimizer], [scheduler_dict]
