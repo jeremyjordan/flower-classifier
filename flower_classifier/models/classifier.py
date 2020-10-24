@@ -13,6 +13,9 @@ from flower_classifier.visualizations import generate_confusion_matrix
 
 logger = logging.getLogger(__name__)
 
+# add default for cases where we don't initialize with hydra main
+DEFAULT_OPTIMIZER = OmegaConf.create({"_target_": "torch.optim.Adam", "lr": "0.001"})
+
 
 class FlowerClassifier(pl.LightningModule):
     def __init__(
@@ -20,10 +23,9 @@ class FlowerClassifier(pl.LightningModule):
         architecture: str,
         dropout_rate: float = 0.0,
         global_pool: str = "avg",
-        learning_rate: float = 1e-3,
         num_classes: int = 102,
         batch_size: int = 64,
-        optimizer_config: DictConfig = None,
+        optimizer_config: DictConfig = DEFAULT_OPTIMIZER,
         lr_scheduler_config: DictConfig = None,
     ):
         super().__init__()
@@ -88,13 +90,12 @@ class FlowerClassifier(pl.LightningModule):
         return metrics
 
     def configure_optimizers(self):
-        if self.optimizer_config and self.lr_scheduler_config:
-            optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
-            scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
-            scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
-            scheduler_dict["scheduler"] = scheduler
-            return [optimizer], [scheduler_dict]
-        else:
-            logger.info("Hydra configuration not set, using default optimizer.")
-            optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+        optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())
+        scheduler = hydra.utils.instantiate(self.lr_scheduler_config.scheduler, optimizer=optimizer)
+
+        if scheduler is None:
             return optimizer
+
+        scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
+        scheduler_dict["scheduler"] = scheduler
+        return [optimizer], [scheduler_dict]
