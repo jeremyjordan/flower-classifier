@@ -55,7 +55,7 @@ Realistic example
 train model.architecture=resnest200e \
       model.dropout_rate=0.2 \
       optimizer=sgd \
-      optimizer.lr = 0.0125 \
+      optimizer.lr=0.0125 \
       lr_scheduler=onecycle \
       +lr_scheduler.scheduler.steps_per_epoch=231 \
       +lr_scheduler.scheduler.epochs=35 \
