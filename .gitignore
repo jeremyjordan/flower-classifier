@@ -2,6 +2,7 @@
 lightning_logs/
 wandb/
 outputs/
+.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
