@@ -23,6 +23,7 @@ class RandomDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.train_dataset = RandomDataset(n_examples=64)
         self.val_dataset = RandomDataset(n_examples=32)
+        self.dims = (64,)
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4)

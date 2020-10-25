@@ -2,6 +2,7 @@
 You can run this script by calling `flower_classifier` in your terminal window.
 """
 
+import math
 import os
 
 import hydra
@@ -14,6 +15,14 @@ from flower_classifier.models.classifier import FlowerClassifier
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
     data_module = hydra.utils.instantiate(cfg.dataset)
+    data_module.prepare_data()
+    n_train_examples = data_module.size(0)
+
+    if hasattr(cfg, "lr_scheduler"):
+        steps_per_epoch = getattr(cfg.lr_scheduler.scheduler, "steps_per_epoch", None)
+        if steps_per_epoch and steps_per_epoch == "AUTO":
+            cfg.lr_scheduler.scheduler.steps_per_epoch = math.ceil(n_train_examples / cfg.dataset.batch_size)
+
     model = FlowerClassifier(
         **cfg.model,
         optimizer_config=cfg.optimizer,
