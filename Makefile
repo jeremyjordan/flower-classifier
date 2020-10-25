@@ -14,6 +14,13 @@ test:
 check:
 	pre-commit run --all-files
 
+colab: init
+	cp .vscode/default_settings.json .vscode/settings.json
+	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+	sudo apt-add-repository https://cli.github.com/packages
+	sudo apt update
+	sudo apt install gh
+
 clean:
 	find . -name '*.pyc' -exec rm -f {} +
 	find . -name '*.pyo' -exec rm -f {} +

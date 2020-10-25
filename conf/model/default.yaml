@@ -1,0 +1,4 @@
+# @package _group_
+architecture: resnet34
+dropout_rate: 0.4
+global_pool: avg

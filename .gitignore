@@ -1,6 +1,8 @@
 # Project specific
 lightning_logs/
 wandb/
+outputs/
+.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -132,3 +134,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Mac specific
+.DS_Store
