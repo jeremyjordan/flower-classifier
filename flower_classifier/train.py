@@ -15,19 +15,16 @@ from flower_classifier.models.classifier import FlowerClassifier
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
     data_module = hydra.utils.instantiate(cfg.dataset)
-    data_module.prepare_data()
-    n_train_examples = data_module.size(0)
 
-    if hasattr(cfg, "lr_scheduler"):
-        steps_per_epoch = getattr(cfg.lr_scheduler.scheduler, "steps_per_epoch", None)
-        if steps_per_epoch and steps_per_epoch == "AUTO":
-            cfg.lr_scheduler.scheduler.steps_per_epoch = math.ceil(n_train_examples / cfg.dataset.batch_size)
+    lr_scheduler = getattr(cfg, "lr_scheduler", None)
+    scheduler = getattr(lr_scheduler, "scheduler", None)
+    steps_per_epoch = getattr(scheduler, "steps_per_epoch", None)
+    if steps_per_epoch == "AUTO":
+        data_module.prepare_data()
+        lr_scheduler.scheduler.steps_per_epoch = math.ceil(data_module.len_train / cfg.dataset.batch_size)
 
     model = FlowerClassifier(
-        **cfg.model,
-        optimizer_config=cfg.optimizer,
-        lr_scheduler_config=cfg.lr_scheduler,
-        batch_size=cfg.dataset.batch_size
+        **cfg.model, optimizer_config=cfg.optimizer, lr_scheduler_config=lr_scheduler, batch_size=cfg.dataset.batch_size
     )
 
     logger = hydra.utils.instantiate(cfg.trainer.logger) or False
