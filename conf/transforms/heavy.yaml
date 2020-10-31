@@ -9,10 +9,6 @@
   p: 0.3
 - _target_: torchvision.transforms.RandomVerticalFlip
   p: 0.3
-- _target_: torchvision.transforms.RandomAffine
-  degrees: 15
-  translate: [0.1, 0.1]
-  scale: [1, 2]
 - _target_: torchvision.transforms.RandomResizedCrop
   size: 224
 - _target_: torchvision.transforms.ToTensor
