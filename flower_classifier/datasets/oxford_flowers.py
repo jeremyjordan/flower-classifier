@@ -180,13 +180,14 @@ class OxfordFlowers102Dataset(Dataset):
 
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
-    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64):
+    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, transforms=DEFAULT_IMG_TRANSFORMS):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
+        self.transform = transforms
 
     def setup(self, stage=None):
-        self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=DEFAULT_IMG_TRANSFORMS)
+        self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=self.transform)
         train_idx, valid_idx = self.get_sampler_indices()
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)

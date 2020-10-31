@@ -1,11 +1,13 @@
 import os
 import tempfile
 
+import hydra.utils
 import plotly.express as px
 import requests
 import streamlit as st
 import torch.nn as nn
 import torchvision
+from omegaconf import OmegaConf
 from PIL import Image
 
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
@@ -49,13 +51,10 @@ def get_photo():
 model = download_model(WEIGHTS_URL)
 pil_image = get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
-inputs = torchvision.transforms.Compose(
-    [
-        torchvision.transforms.Resize(512),
-        torchvision.transforms.ToTensor(),
-        torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-    ]
-)(pil_image)
+
+transforms = OmegaConf.load("conf/transforms/predict.yaml")
+transforms = [hydra.utils.instantiate(t) for t in transforms]
+inputs = torchvision.transforms.Compose(transforms)(pil_image)
 logits = model(inputs.unsqueeze(0))
 preds = nn.functional.softmax(logits, dim=1)
 top_pred = preds.max(1)

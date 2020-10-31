@@ -4,6 +4,7 @@ defaults:
   - optimizer: adam
   - dataset: oxford
   - lr_scheduler: reduce_on_plateau
+  - transforms: basic
 
 hydra:
   run:

@@ -13,7 +13,8 @@ from flower_classifier.models.classifier import FlowerClassifier
 
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
-    data_module = hydra.utils.instantiate(cfg.dataset)
+    transforms = [hydra.utils.instantiate(t) for t in cfg.transforms]
+    data_module = hydra.utils.instantiate(cfg.dataset, transforms=transforms)
     model = FlowerClassifier(
         **cfg.model,
         optimizer_config=cfg.optimizer,
