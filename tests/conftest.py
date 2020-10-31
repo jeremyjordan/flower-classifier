@@ -25,12 +25,17 @@ def oxford_dataloader(oxford_dataset):
 
 
 @pytest.fixture(scope="module")
-def oxford_datamodule(oxford_dataset):
-    data_module = OxfordFlowersDataModule(data_dir=TEST_CACHE_DIR, batch_size=32)
+def oxford_datamodule():
+    transforms = [
+        torchvision.transforms.RandomResizedCrop(224),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+    ]
+    data_module = OxfordFlowersDataModule(data_dir=TEST_CACHE_DIR, batch_size=32, transforms=transforms)
     return data_module
 
 
 @pytest.fixture(scope="module")
-def random_datamodule(oxford_dataset):
+def random_datamodule():
     data_module = RandomDataModule(batch_size=32)
     return data_module
