@@ -6,25 +6,36 @@ import math
 import os
 
 import hydra
+from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import LearningRateLogger
 
 from flower_classifier.models.classifier import FlowerClassifier
 
 
-@hydra.main(config_path="../conf", config_name="config")
-def train(cfg):
-    data_module = hydra.utils.instantiate(cfg.dataset)
-
+def resolve_steps_per_epoch(cfg: DictConfig, len_train: int):
     lr_scheduler = getattr(cfg, "lr_scheduler", None)
     scheduler = getattr(lr_scheduler, "scheduler", None)
     steps_per_epoch = getattr(scheduler, "steps_per_epoch", None)
     if steps_per_epoch == "AUTO":
-        data_module.prepare_data()
-        lr_scheduler.scheduler.steps_per_epoch = math.ceil(data_module.len_train / cfg.dataset.batch_size)
+        lr_scheduler.scheduler.steps_per_epoch = int(math.ceil(len_train / cfg.dataset.batch_size))
+    elif steps_per_epoch:
+        assert isinstance(steps_per_epoch, int), "cfg.lr_scheduler.scheduler.steps_per_epoch must be AUTO or type int"
+    return lr_scheduler
+
+
+@hydra.main(config_path="../conf", config_name="config")
+def train(cfg):
+    data_module = hydra.utils.instantiate(cfg.dataset)
+    data_module.prepare_data()
+
+    lr_scheduler = resolve_steps_per_epoch(cfg, len_train=data_module.len_train)
 
     model = FlowerClassifier(
-        **cfg.model, optimizer_config=cfg.optimizer, lr_scheduler_config=lr_scheduler, batch_size=cfg.dataset.batch_size
+        **cfg.model,
+        optimizer_config=cfg.optimizer,
+        lr_scheduler_config=lr_scheduler,
+        batch_size=cfg.dataset.batch_size,
     )
 
     logger = hydra.utils.instantiate(cfg.trainer.logger) or False
