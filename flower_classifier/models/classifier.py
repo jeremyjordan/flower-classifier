@@ -8,7 +8,6 @@ import torch.nn as nn
 from omegaconf import DictConfig, OmegaConf
 from pytorch_lightning.metrics.functional.classification import confusion_matrix
 
-from flower_classifier.datasets.oxford_flowers import NAMES
 from flower_classifier.visualizations import generate_confusion_matrix
 
 logger = logging.getLogger(__name__)
@@ -84,7 +83,8 @@ class FlowerClassifier(pl.LightningModule):
                 epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
                 epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
                 cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparams.num_classes).cpu().numpy()
-                fig = generate_confusion_matrix(cm, class_names=NAMES)  # TODO remove this hardcoding
+                class_names = getattr(self.train_dataloader().dataset, "classes", None)
+                fig = generate_confusion_matrix(cm, class_names=class_names)
                 if self.logger:
                     self.logger.experiment.log({"confusion_matrix": fig})
         return metrics

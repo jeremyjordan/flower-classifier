@@ -16,6 +16,10 @@ class RandomDataset(torch.utils.data.Dataset):
     def __len__(self):
         return self.n_examples
 
+    @property
+    def classes(self):
+        return ["0", "1"]
+
 
 class RandomDataModule(pl.LightningDataModule):
     def __init__(self, batch_size=16):

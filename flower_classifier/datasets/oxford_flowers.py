@@ -178,6 +178,10 @@ class OxfordFlowers102Dataset(Dataset):
     def __len__(self):
         return len(self.labels)
 
+    @property
+    def classes(self):
+        return NAMES
+
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
     def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64):
