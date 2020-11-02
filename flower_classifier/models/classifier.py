@@ -27,6 +27,7 @@ class FlowerClassifier(pl.LightningModule):
         batch_size: int = 64,
         optimizer_config: DictConfig = DEFAULT_OPTIMIZER,
         lr_scheduler_config: DictConfig = None,
+        pretrained: bool = True,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -41,7 +42,11 @@ class FlowerClassifier(pl.LightningModule):
 
         # define training objects
         self.network = timm.create_model(
-            architecture, pretrained=True, num_classes=num_classes, drop_rate=dropout_rate, global_pool=global_pool
+            architecture,
+            pretrained=pretrained,
+            num_classes=num_classes,
+            drop_rate=dropout_rate,
+            global_pool=global_pool,
         )
         self.criterion = nn.CrossEntropyLoss()
         self.accuracy_metric = pl.metrics.Accuracy()
