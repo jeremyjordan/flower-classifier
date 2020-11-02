@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
+import torch.nn as nn
 import torchvision
 from PIL import Image
 
@@ -55,7 +56,14 @@ def make_prediction(model, pil_image):
         ]
     )(pil_image)
     logits = model(inputs.unsqueeze(0))
-    return logits
+    preds = nn.functional.softmax(logits, dim=1)
+    return preds
+
+
+def display_prediction(preds):
+    top_pred = preds.max(1)
+    label = oxford_idx_to_names[top_pred.indices.item()]
+    st.write(f"Prediction: {label}")
 
 
 def display_top_3_table(preds):

@@ -5,10 +5,8 @@ with Weights and Biases.
 """
 
 import streamlit as st
-import torch.nn as nn
 
 from flower_classifier.artifacts import list_run_files
-from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.ui import components
 
 st.set_page_config(layout="wide", initial_sidebar_state="expanded")
@@ -37,12 +35,9 @@ with col1:
     run_id, checkpoint_file = select_model("Model A")
     if checkpoint_file:
         model = components.download_model_wandb(run_id, checkpoint_file)
-        logits = components.make_prediction(model, pil_image)
-        preds = nn.functional.softmax(logits, dim=1)
-        top_pred = preds.max(1)
-        label = oxford_idx_to_names[top_pred.indices.item()]
-        st.write(f"Prediction: {label}")
+        preds = components.make_prediction(model, pil_image)
 
+        components.display_prediction(preds)
         components.display_top_3_table(preds)
         components.display_prediction_distribution(preds)
 
@@ -52,11 +47,8 @@ with col2:
     run_id, checkpoint_file = select_model("Model B")
     if checkpoint_file:
         model = components.download_model_wandb(run_id, checkpoint_file)
-        logits = components.make_prediction(model, pil_image)
-        preds = nn.functional.softmax(logits, dim=1)
-        top_pred = preds.max(1)
-        label = oxford_idx_to_names[top_pred.indices.item()]
-        st.write(f"Prediction: {label}")
+        preds = components.make_prediction(model, pil_image)
 
+        components.display_prediction(preds)
         components.display_top_3_table(preds)
         components.display_prediction_distribution(preds)
