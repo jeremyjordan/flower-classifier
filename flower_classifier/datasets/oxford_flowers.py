@@ -147,7 +147,7 @@ def download_dataset(root_dir: str):
         torchvision.datasets.utils.download_url(LABELS_URL, root_dir)
 
 
-def split_dataset(root_dir: str, target_dir: str):
+def split_dataset(root_dir: str, target_dir: str, test_size=0.2):
     """
     Creates two CSVs with filepaths to the images in the original dataset.
     """
@@ -160,7 +160,7 @@ def split_dataset(root_dir: str, target_dir: str):
     labels = loadmat(labels_filename)["labels"].flatten() - 1
     filepaths = [root_dir / "jpg" / f"image_{index+1:05}.jpg" for index in range(len(labels))]
     X_train, X_val, y_train, y_val = train_test_split(
-        filepaths, labels, test_size=0.2, random_state=14, stratify=labels
+        filepaths, labels, test_size=test_size, random_state=14, stratify=labels
     )
 
     train_dataset = {"filename": X_train, "label": y_train}
