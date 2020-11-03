@@ -19,5 +19,5 @@ def download_model_checkpoint(
     api = wandb.Api()
     run = api.run(f"{entity}/{project}/{run_id}")
     f = run.file(checkpoint_name)
-    f.download(root=download_dir, replace=True)  # TODO find a better place to download to
+    f.download(root=download_dir, replace=True)
     return f.name

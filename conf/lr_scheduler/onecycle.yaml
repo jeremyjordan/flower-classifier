@@ -2,6 +2,7 @@
 scheduler:
   _target_: torch.optim.lr_scheduler.OneCycleLR
   max_lr: ${optimizer.lr}
-  total_steps: 20000
+  epochs: ${trainer.max_epochs}
+  steps_per_epoch: AUTO
 interval: step
 frequency: 1
