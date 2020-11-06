@@ -25,11 +25,11 @@ class RandomDataset(torch.utils.data.Dataset):
 
 
 class RandomDataModule(pl.LightningDataModule):
-    def __init__(self, batch_size=16, transforms=[]):
+    def __init__(self, batch_size=16, train_transforms=[], val_transforms=[]):
         super().__init__()
         self.batch_size = batch_size
-        self.train_dataset = RandomDataset(n_examples=64, transforms=transforms)
-        self.val_dataset = RandomDataset(n_examples=32, transforms=transforms)
+        self.train_dataset = RandomDataset(n_examples=64, transforms=train_transforms)
+        self.val_dataset = RandomDataset(n_examples=32, transforms=val_transforms)
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4)

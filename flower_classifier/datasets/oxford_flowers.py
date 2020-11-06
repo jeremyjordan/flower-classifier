@@ -204,11 +204,11 @@ class OxfordFlowers102Dataset(Dataset):
 
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
-    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, transforms=[]):
+    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, train_transforms=[]):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
-        self.transform = transforms
+        self.transform = train_transforms
         self.train_sampler = None
         self.val_sampler = None
 
