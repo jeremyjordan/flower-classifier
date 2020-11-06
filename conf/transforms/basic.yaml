@@ -1,8 +1,17 @@
 # @package _group_
 
-- _target_: torchvision.transforms.RandomResizedCrop
-  size: 224
-- _target_: torchvision.transforms.ToTensor
-- _target_: torchvision.transforms.Normalize
-  mean: [0.485, 0.456, 0.406]
-  std: [0.229, 0.224, 0.225]
+train:
+  - _target_: torchvision.transforms.RandomResizedCrop
+    size: 224
+  - _target_: torchvision.transforms.ToTensor
+  - _target_: torchvision.transforms.Normalize
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+
+val:
+  - _target_: torchvision.transforms.RandomResizedCrop
+    size: 224
+  - _target_: torchvision.transforms.ToTensor
+  - _target_: torchvision.transforms.Normalize
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]

@@ -1,4 +1,7 @@
 # @package _group_
-_target_: flower_classifier.datasets.oxford_flowers.OxfordFlowersDataModule
+_target_: flower_classifier.datasets.csv.CSVDataModule
+train_csv: "/content/drive/My Drive/Flowers/oxford102/train_split.csv"
+val_csv: "/content/drive/My Drive/Flowers/oxford102/val_split.csv"
+data_col: "filename"
+target_col: "label"
 batch_size: 32
-data_dir: "/content/drive/My Drive/Flowers/"

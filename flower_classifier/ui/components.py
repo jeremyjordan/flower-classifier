@@ -51,7 +51,7 @@ def download_model_wandb(run_id, checkpoint_file):
 @st.cache(allow_output_mutation=True)
 def make_prediction(model, pil_image):
     transforms = OmegaConf.load("conf/transforms/predict.yaml")
-    transforms = [hydra.utils.instantiate(t) for t in transforms]
+    transforms = [hydra.utils.instantiate(t) for t in transforms.val]
     inputs = torchvision.transforms.Compose(transforms)(pil_image)
     logits = model(inputs.unsqueeze(0))
     preds = nn.functional.softmax(logits, dim=1)
