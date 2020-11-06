@@ -34,7 +34,7 @@ def oxford_datamodule():
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]
-    data_module = OxfordFlowersDataModule(data_dir=TEST_CACHE_DIR, batch_size=32, transforms=transforms)
+    data_module = OxfordFlowersDataModule(data_dir=TEST_CACHE_DIR, batch_size=32, train_transforms=transforms)
     return data_module
 
 
