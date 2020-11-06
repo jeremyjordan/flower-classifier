@@ -147,12 +147,15 @@ def download_dataset(root_dir: str):
         torchvision.datasets.utils.download_url(LABELS_URL, root_dir)
 
 
-def split_dataset(root_dir: str, target_dir: str, test_size=0.2):
+def split_dataset(root_dir: str, target_dir: str, test_size=0.2, download=False):
     """
     Creates two CSVs with filepaths to the images in the original dataset.
     """
     import pandas as pd
     from sklearn.model_selection import train_test_split
+
+    if download:
+        download_dataset(root_dir)
 
     root_dir = Path(root_dir)
     target_dir = Path(target_dir)
@@ -211,14 +214,14 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
+        self.train_sampler = None
+        self.val_sampler = None
 
     def prepare_data(self):
         self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=DEFAULT_IMG_TRANSFORMS)
         train_idx, valid_idx = self.get_sampler_indices()
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)
-        self.len_train = len(train_idx)
-        self.len_valid = len(valid_idx)
 
     def get_sampler_indices(self, valid_size=0.1, shuffle=True, random_seed=14):
         num_train = len(self.dataset)
@@ -237,3 +240,11 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(self.dataset, batch_size=self.batch_size, sampler=self.val_sampler, num_workers=4)
+
+    @property
+    def len_train(self):
+        return len(self.train_sampler)
+
+    @property
+    def len_valid(self):
+        return len(self.val_sampler)
