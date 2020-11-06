@@ -141,6 +141,32 @@ def download_dataset(root_dir: str):
         torchvision.datasets.utils.download_url(LABELS_URL, root_dir)
 
 
+def split_dataset(root_dir: str, target_dir: str, test_size=0.2, download=False):
+    """
+    Creates two CSVs with filepaths to the images in the original dataset.
+    """
+    import pandas as pd
+    from sklearn.model_selection import train_test_split
+
+    if download:
+        download_dataset(root_dir)
+
+    root_dir = Path(root_dir)
+    target_dir = Path(target_dir)
+    labels_filename = root_dir / "imagelabels.mat"
+    labels = loadmat(labels_filename)["labels"].flatten() - 1
+    filepaths = [root_dir / "jpg" / f"image_{index+1:05}.jpg" for index in range(len(labels))]
+    X_train, X_val, y_train, y_val = train_test_split(
+        filepaths, labels, test_size=test_size, random_state=14, stratify=labels
+    )
+
+    train_dataset = {"filename": X_train, "label": y_train}
+    val_dataset = {"filename": X_val, "label": y_val}
+    target_dir.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(train_dataset).to_csv(target_dir / "train_split.csv", index=False)
+    pd.DataFrame(val_dataset).to_csv(target_dir / "val_split.csv", index=False)
+
+
 class OxfordFlowers102Dataset(Dataset):
     """
     Oxford 102 Category Flower Dataset
@@ -172,6 +198,10 @@ class OxfordFlowers102Dataset(Dataset):
     def __len__(self):
         return len(self.labels)
 
+    @property
+    def classes(self):
+        return NAMES
+
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
     def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, transforms=[]):
@@ -179,14 +209,14 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
         self.data_dir = data_dir
         self.batch_size = batch_size
         self.transform = transforms
+        self.train_sampler = None
+        self.val_sampler = None
 
     def prepare_data(self):
         self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=self.transform)
         train_idx, valid_idx = self.get_sampler_indices()
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)
-        self.len_train = len(train_idx)
-        self.len_valid = len(valid_idx)
 
     def get_sampler_indices(self, valid_size=0.1, shuffle=True, random_seed=14):
         num_train = len(self.dataset)
@@ -205,3 +235,11 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(self.dataset, batch_size=self.batch_size, sampler=self.val_sampler, num_workers=4)
+
+    @property
+    def len_train(self):
+        return len(self.train_sampler)
+
+    @property
+    def len_valid(self):
+        return len(self.val_sampler)
