@@ -16,6 +16,10 @@ class RandomDataset(torch.utils.data.Dataset):
     def __len__(self):
         return self.n_examples
 
+    @property
+    def classes(self):
+        return ["0", "1"]
+
 
 class RandomDataModule(pl.LightningDataModule):
     def __init__(self, batch_size=16):
@@ -23,11 +27,17 @@ class RandomDataModule(pl.LightningDataModule):
         self.batch_size = batch_size
         self.train_dataset = RandomDataset(n_examples=64)
         self.val_dataset = RandomDataset(n_examples=32)
-        self.len_train = len(self.train_dataset)
-        self.len_valid = len(self.val_dataset)
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, num_workers=4)
 
     def val_dataloader(self):
         return torch.utils.data.DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=4)
+
+    @property
+    def len_train(self):
+        return len(self.train_dataset)
+
+    @property
+    def len_valid(self):
+        return len(self.val_dataset)
