@@ -67,32 +67,25 @@ class FlowerClassifier(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         step_result = self._step(batch)
-        loss = step_result["loss"]
-        acc = step_result["accuracy"]
-        metrics = {"train/loss": loss, "train/acc": acc, "epoch": self.current_epoch}
-        if self.logger:
-            self.logger.log_metrics(metrics, step=self.global_step)
-        return {"loss": loss}
+        self.log("train/loss", step_result["loss"], on_step=True)
+        self.log("train/acc", step_result["accuracy"], on_step=True)
+        self.log("epoch", self.current_epoch, on_step=True)
+        return {"loss": step_result["loss"]}
 
     def validation_step(self, batch, batch_idx):
         step_result = self._step(batch)
+        self.log("val/loss", step_result["loss"], on_step=False, on_epoch=True, reduce_fx=torch.mean)
+        self.log("val/acc", step_result["accuracy"], on_step=False, on_epoch=True, reduce_fx=torch.mean)
         return step_result
 
     def validation_epoch_end(self, validation_step_outputs):
-        loss = torch.stack([x["loss"] for x in validation_step_outputs]).mean()
-        acc = torch.stack([x["accuracy"] for x in validation_step_outputs]).mean()
-        metrics = {"val/loss": loss, "val/acc": acc}
-        if self.logger:
-            self.logger.log_metrics(metrics, step=self.global_step)
-            if self.current_epoch > 0 and self.current_epoch % 5 == 0:
-                epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
-                epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
-                cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparams.num_classes).cpu().numpy()
-                class_names = getattr(self.train_dataloader().dataset, "classes", None)
-                fig = generate_confusion_matrix(cm, class_names=class_names)
-                if self.logger:
-                    self.logger.experiment.log({"confusion_matrix": fig})
-        return metrics
+        if self.logger and self.current_epoch > 0 and self.current_epoch % 5 == 0:
+            epoch_preds = torch.cat([x["preds"] for x in validation_step_outputs])
+            epoch_targets = torch.cat([x["labels"] for x in validation_step_outputs])
+            cm = confusion_matrix(epoch_preds, epoch_targets, num_classes=self.hparams.num_classes).cpu().numpy()
+            class_names = getattr(self.train_dataloader().dataset, "classes", None)
+            fig = generate_confusion_matrix(cm, class_names=class_names)
+            self.logger.experiment.log({"confusion_matrix": fig})
 
     def configure_optimizers(self):
         optimizer = hydra.utils.instantiate(self.optimizer_config, params=self.parameters())

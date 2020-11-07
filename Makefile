@@ -1,6 +1,6 @@
 init:
 	pip install --upgrade -r requirements-dev.txt
-	pip install -e .
+	pip install -e . -f https://download.pytorch.org/whl/torch_stable.html
 	pre-commit install
 
 format:
