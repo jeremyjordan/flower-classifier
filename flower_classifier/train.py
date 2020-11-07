@@ -26,9 +26,15 @@ def resolve_steps_per_epoch(cfg: DictConfig, len_train: int):
 
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
-    data_module = hydra.utils.instantiate(cfg.dataset)
+    datamodule_args = {}
+    if cfg.transforms.train:
+        train_transforms = [hydra.utils.instantiate(t) for t in cfg.transforms.train]
+        datamodule_args["train_transforms"] = train_transforms
+    if cfg.transforms.val:
+        val_transforms = [hydra.utils.instantiate(t) for t in cfg.transforms.val]
+        datamodule_args["val_transforms"] = val_transforms
+    data_module = hydra.utils.instantiate(cfg.dataset, **datamodule_args)
     data_module.prepare_data()
-
     lr_scheduler = resolve_steps_per_epoch(cfg, len_train=data_module.len_train)
 
     model = FlowerClassifier(

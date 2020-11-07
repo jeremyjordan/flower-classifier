@@ -122,12 +122,6 @@ NAMES = [
 IMAGE_URL = "https://www.robots.ox.ac.uk/~vgg/data/flowers/102/102flowers.tgz"
 LABELS_URL = "https://www.robots.ox.ac.uk/~vgg/data/flowers/102/imagelabels.mat"
 
-DEFAULT_IMG_TRANSFORMS = [
-    torchvision.transforms.RandomResizedCrop(224),
-    torchvision.transforms.ToTensor(),
-    torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-]
-
 
 def download_dataset(root_dir: str):
     root_dir = Path(root_dir)
@@ -210,15 +204,16 @@ class OxfordFlowers102Dataset(Dataset):
 
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
-    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64):
+    def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, train_transforms=[]):
         super().__init__()
         self.data_dir = data_dir
         self.batch_size = batch_size
+        self.transform = train_transforms
         self.train_sampler = None
         self.val_sampler = None
 
     def prepare_data(self):
-        self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=DEFAULT_IMG_TRANSFORMS)
+        self.dataset = OxfordFlowers102Dataset(self.data_dir, transforms=self.transform)
         train_idx, valid_idx = self.get_sampler_indices()
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)
