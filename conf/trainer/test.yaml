@@ -1,5 +1,5 @@
 # @package _group_
-row_log_interval: 1
+log_every_n_steps: 1
 logger:
   _target_: pytorch_lightning.loggers.WandbLogger
   project: test
