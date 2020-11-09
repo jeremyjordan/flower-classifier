@@ -4,6 +4,7 @@ in `flower_classifier/datasets/oxford_flowers.py`. This splits the original data
 into a train and validation split. With separate datasets, you can apply different
 transformation pipelines.
 """
+from pathlib import Path
 
 import pandas as pd
 import pytorch_lightning as pl
@@ -11,7 +12,9 @@ import torch
 import torchvision
 from PIL import Image
 
+from flower_classifier import ROOT_DATA_DIR
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
+from flower_classifier.datasets.oxford_flowers import split_dataset
 
 
 class CSVDataset(torch.utils.data.Dataset):
@@ -48,8 +51,8 @@ class CSVDataset(torch.utils.data.Dataset):
 class CSVDataModule(pl.LightningDataModule):
     def __init__(
         self,
-        train_csv: str = "/content/drive/My Drive/Flowers/oxford102/train_split.csv",
-        val_csv: str = "/content/drive/My Drive/Flowers/oxford102/val_split.csv",
+        data_dir=ROOT_DATA_DIR,
+        val_size=0.1,
         train_transforms=[],
         val_transforms=[],
         batch_size=16,
@@ -59,6 +62,12 @@ class CSVDataModule(pl.LightningDataModule):
     ):
         super().__init__()
         self.batch_size = batch_size
+        self.root_dir = Path(data_dir)
+        self.csv_dir = self.root_dir / "oxford102"
+        split_dataset(self.root_dir, self.csv_dir, val_size=val_size)
+        train_csv = self.csv_dir / "train_split.csv"
+        val_csv = self.csv_dir / "val_split.csv"
+
         self.train_dataset = CSVDataset(
             filename=train_csv,
             data_col=data_col,

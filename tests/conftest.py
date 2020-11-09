@@ -1,11 +1,9 @@
-import os
-
 import pytest
 import torch
 import torchvision
 
-from flower_classifier.datasets.csv import CSVDataset
-from flower_classifier.datasets.oxford_flowers import OxfordFlowers102Dataset, OxfordFlowersDataModule, split_dataset
+from flower_classifier.datasets.csv import CSVDataModule
+from flower_classifier.datasets.oxford_flowers import OxfordFlowers102Dataset, OxfordFlowersDataModule
 from flower_classifier.datasets.random import RandomDataModule
 from tests.datasets import TEST_CACHE_DIR
 
@@ -39,22 +37,16 @@ def oxford_datamodule():
 
 
 @pytest.fixture(scope="module")
-def oxford_csv_dataset() -> torch.utils.data.Dataset:
-    split_dataset(root_dir=TEST_CACHE_DIR, target_dir=TEST_CACHE_DIR)
-    train_filename = os.path.join(TEST_CACHE_DIR, "train_split.csv")
+def oxford_csv_datamodule():
     transforms = [
         torchvision.transforms.RandomResizedCrop(224),
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ]
-    dataset = CSVDataset(filename=train_filename, transforms=transforms)
-    return dataset
-
-
-@pytest.fixture(scope="module")
-def oxford_csv_dataloader(oxford_csv_dataset):
-    dataloader = torch.utils.data.DataLoader(oxford_csv_dataset, batch_size=8, shuffle=False)
-    return dataloader
+    data_module = CSVDataModule(
+        data_dir=TEST_CACHE_DIR, batch_size=32, train_transforms=transforms, val_transforms=transforms
+    )
+    return data_module
 
 
 @pytest.fixture(scope="module")

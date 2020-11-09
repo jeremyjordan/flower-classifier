@@ -31,8 +31,8 @@ def test_training_step_datamodule(lightning_module, trainer, oxford_datamodule):
 
 
 @pytest.mark.download
-def test_training_step_csv_dataloader(lightning_module, trainer, oxford_csv_dataloader):
-    trainer.fit(lightning_module, train_dataloader=oxford_csv_dataloader, val_dataloaders=oxford_csv_dataloader)
+def test_training_step_csv_dataloader(lightning_module, trainer, oxford_csv_datamodule):
+    trainer.fit(lightning_module, datamodule=oxford_csv_datamodule)
 
 
 def test_training_step_offline(lightning_module, trainer, random_datamodule):
