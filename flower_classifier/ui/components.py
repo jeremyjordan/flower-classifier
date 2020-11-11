@@ -1,12 +1,14 @@
 import os
 import tempfile
 
+import hydra
 import pandas as pd
 import plotly.express as px
 import requests
 import streamlit as st
 import torch.nn as nn
 import torchvision
+from omegaconf import OmegaConf
 from PIL import Image
 
 from flower_classifier.artifacts import download_model_checkpoint
@@ -48,13 +50,9 @@ def download_model_wandb(run_id, checkpoint_file):
 
 @st.cache(allow_output_mutation=True)
 def make_prediction(model, pil_image):
-    inputs = torchvision.transforms.Compose(
-        [
-            torchvision.transforms.Resize(512),
-            torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
-        ]
-    )(pil_image)
+    transforms = OmegaConf.load("conf/transforms/predict.yaml")
+    transforms = [hydra.utils.instantiate(t) for t in transforms.val]
+    inputs = torchvision.transforms.Compose(transforms)(pil_image)
     logits = model(inputs.unsqueeze(0))
     preds = nn.functional.softmax(logits, dim=1)
     return preds

@@ -8,7 +8,7 @@ import os
 import hydra
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
-from pytorch_lightning.callbacks import LearningRateLogger
+from pytorch_lightning.callbacks import LearningRateMonitor
 
 from flower_classifier.models.classifier import FlowerClassifier
 
@@ -26,9 +26,15 @@ def resolve_steps_per_epoch(cfg: DictConfig, len_train: int):
 
 @hydra.main(config_path="../conf", config_name="config")
 def train(cfg):
-    data_module = hydra.utils.instantiate(cfg.dataset)
+    datamodule_args = {}
+    if cfg.transforms.train:
+        train_transforms = [hydra.utils.instantiate(t) for t in cfg.transforms.train]
+        datamodule_args["train_transforms"] = train_transforms
+    if cfg.transforms.val:
+        val_transforms = [hydra.utils.instantiate(t) for t in cfg.transforms.val]
+        datamodule_args["val_transforms"] = val_transforms
+    data_module = hydra.utils.instantiate(cfg.dataset, **datamodule_args)
     data_module.prepare_data()
-
     lr_scheduler = resolve_steps_per_epoch(cfg, len_train=data_module.len_train)
 
     model = FlowerClassifier(
@@ -37,19 +43,22 @@ def train(cfg):
         lr_scheduler_config=lr_scheduler,
         batch_size=cfg.dataset.batch_size,
     )
-
     logger = hydra.utils.instantiate(cfg.trainer.logger) or False
+    lr_logger = LearningRateMonitor(logging_interval="step")
+    callbacks = [lr_logger]
+
+    # checkpoint callback requires dynamic configuration
     experiment = getattr(logger, "experiment", None)
     logger_dir = getattr(experiment, "dir", "logger")
     checkpoints_dir = os.path.join(logger_dir, "{epoch}")
     checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, filepath=checkpoints_dir) or False
+    if checkpoint_callback:
+        callbacks.append(checkpoint_callback)
 
-    lr_logger = LearningRateLogger(logging_interval="step")
     trainer_args = {
         **cfg.trainer,
         "logger": logger,
-        "checkpoint_callback": checkpoint_callback,
-        "callbacks": [lr_logger],
+        "callbacks": callbacks,
     }
     trainer = Trainer(**trainer_args)
 
