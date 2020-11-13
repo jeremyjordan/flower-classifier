@@ -1,0 +1,4 @@
+# @package _group_
+dataset: 
+  _target_: flower_classifier.datasets.oxford_flowers.OxfordFlowers102Dataset
+target_dir: "/content/drive/My Drive/Flowers/oxford102"

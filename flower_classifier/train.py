@@ -33,6 +33,9 @@ def train(cfg):
     if cfg.transforms.val:
         val_transforms = [hydra.utils.instantiate(t) for t in cfg.transforms.val]
         datamodule_args["val_transforms"] = val_transforms
+    if hasattr(cfg, "split"):
+        dataset = hydra.utils.instantiate(cfg.split.dataset)
+        dataset.split_dataset(cfg.split.target_dir)
     data_module = hydra.utils.instantiate(cfg.dataset, **datamodule_args)
     data_module.prepare_data()
     lr_scheduler = resolve_steps_per_epoch(cfg, len_train=data_module.len_train)
