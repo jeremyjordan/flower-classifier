@@ -141,32 +141,6 @@ def download_dataset(root_dir: str):
         torchvision.datasets.utils.download_url(LABELS_URL, root_dir)
 
 
-def split_dataset(root_dir: str, target_dir: str, test_size=0.2, download=False):
-    """
-    Creates two CSVs with filepaths to the images in the original dataset.
-    """
-    import pandas as pd
-    from sklearn.model_selection import train_test_split
-
-    if download:
-        download_dataset(root_dir)
-
-    root_dir = Path(root_dir)
-    target_dir = Path(target_dir)
-    labels_filename = root_dir / "imagelabels.mat"
-    labels = loadmat(labels_filename)["labels"].flatten() - 1
-    filepaths = [root_dir / "jpg" / f"image_{index+1:05}.jpg" for index in range(len(labels))]
-    X_train, X_val, y_train, y_val = train_test_split(
-        filepaths, labels, test_size=test_size, random_state=14, stratify=labels
-    )
-
-    train_dataset = {"filename": X_train, "label": y_train}
-    val_dataset = {"filename": X_val, "label": y_val}
-    target_dir.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(train_dataset).to_csv(target_dir / "train_split.csv", index=False)
-    pd.DataFrame(val_dataset).to_csv(target_dir / "val_split.csv", index=False)
-
-
 class OxfordFlowers102Dataset(Dataset):
     """
     Oxford 102 Category Flower Dataset
@@ -202,6 +176,29 @@ class OxfordFlowers102Dataset(Dataset):
     def classes(self):
         return NAMES
 
+    def split_dataset(self, target_dir: str, val_size=0.1):
+        """
+        Creates two CSVs with filepaths to the images in the original dataset.
+        """
+        import pandas as pd
+        from sklearn.model_selection import train_test_split
+
+        filepaths = [self.root_dir / "jpg" / f"image_{index+1:05}.jpg" for index in range(len(self.labels))]
+        X_train, X_val, y_train, y_val = train_test_split(
+            filepaths, self.labels, test_size=val_size, random_state=14, stratify=self.labels
+        )
+
+        train_dataset = {"filename": X_train, "label": y_train}
+        val_dataset = {"filename": X_val, "label": y_val}
+
+        target_dir = Path(target_dir)
+        target_dir.mkdir(parents=True, exist_ok=True)
+        train_path = target_dir / "train_split.csv"
+        val_path = target_dir / "val_split.csv"
+
+        pd.DataFrame(train_dataset).to_csv(train_path, index=False)
+        pd.DataFrame(val_dataset).to_csv(val_path, index=False)
+
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
     def __init__(self, data_dir=ROOT_DATA_DIR, batch_size=64, train_transforms=[]):
@@ -218,10 +215,10 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)
 
-    def get_sampler_indices(self, valid_size=0.1, shuffle=True, random_seed=14):
+    def get_sampler_indices(self, val_size=0.1, shuffle=True, random_seed=14):
         num_train = len(self.dataset)
         indices = list(range(num_train))
-        split = int(np.floor(valid_size * num_train))
+        split = int(np.floor(val_size * num_train))
 
         if shuffle:
             np.random.seed(random_seed)
