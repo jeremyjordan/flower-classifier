@@ -176,7 +176,7 @@ class OxfordFlowers102Dataset(Dataset):
     def classes(self):
         return NAMES
 
-    def split_dataset(self, target_dir: str, val_size=0.1):
+    def csv_split(self, target_dir: str, val_size=0.1):
         """
         Creates two CSVs with filepaths to the images in the original dataset.
         """
@@ -190,14 +190,10 @@ class OxfordFlowers102Dataset(Dataset):
 
         train_dataset = {"filename": X_train, "label": y_train}
         val_dataset = {"filename": X_val, "label": y_val}
-
         target_dir = Path(target_dir)
         target_dir.mkdir(parents=True, exist_ok=True)
-        train_path = target_dir / "train_split.csv"
-        val_path = target_dir / "val_split.csv"
-
-        pd.DataFrame(train_dataset).to_csv(train_path, index=False)
-        pd.DataFrame(val_dataset).to_csv(val_path, index=False)
+        pd.DataFrame(train_dataset).to_csv(target_dir / "train_split.csv", index=False)
+        pd.DataFrame(val_dataset).to_csv(target_dir / "val_split.csv", index=False)
 
 
 class OxfordFlowersDataModule(pl.LightningDataModule):
