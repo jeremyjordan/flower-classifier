@@ -1,6 +1,6 @@
 init:
 	pip install --upgrade -r requirements-dev.txt
-	pip install -e . -f https://download.pytorch.org/whl/torch_stable.html
+	pip install -e .
 	pre-commit install
 
 format:
@@ -16,6 +16,7 @@ check:
 
 colab: init
 	cp .vscode/default_settings.json .vscode/settings.json
+	pip install --upgrade -r requirements-colab.txt -f https://download.pytorch.org/whl/torch_stable.html
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 	sudo apt-add-repository https://cli.github.com/packages
 	sudo apt update
