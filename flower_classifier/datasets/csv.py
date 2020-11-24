@@ -1,8 +1,12 @@
 """
-You can generate a CSV dataset by running the `split_dataset()` utility function
-in `flower_classifier/datasets/oxford_flowers.py`. This splits the original dataset
-into a train and validation split. With separate datasets, you can apply different
-transformation pipelines.
+You can generate a CSV dataset by running:
+
+```
+cli oxford split-dataset
+```
+
+This splits the original dataset into a train and validation split.
+With separate datasets, you can apply different transformation pipelines.
 """
 
 import pandas as pd

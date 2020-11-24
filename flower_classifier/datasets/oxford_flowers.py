@@ -5,6 +5,7 @@ import numpy as np
 import pytorch_lightning as pl
 import torch
 import torchvision
+import typer
 from PIL import Image
 from scipy.io import loadmat
 from torch.utils.data import DataLoader, Dataset
@@ -13,7 +14,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from flower_classifier import ROOT_DATA_DIR
 
 logger = logging.getLogger(__name__)
-
+app = typer.Typer()
 
 NAMES = [
     "pink primrose",
@@ -141,7 +142,8 @@ def download_dataset(root_dir: str):
         torchvision.datasets.utils.download_url(LABELS_URL, root_dir)
 
 
-def split_dataset(root_dir: str, target_dir: str, test_size=0.2, download=False):
+@app.command()
+def split_dataset(root_dir: str, target_dir: str, val_size=0.1, random_state=14, download=False):
     """
     Creates two CSVs with filepaths to the images in the original dataset.
     """
@@ -157,14 +159,18 @@ def split_dataset(root_dir: str, target_dir: str, test_size=0.2, download=False)
     labels = loadmat(labels_filename)["labels"].flatten() - 1
     filepaths = [root_dir / "jpg" / f"image_{index+1:05}.jpg" for index in range(len(labels))]
     X_train, X_val, y_train, y_val = train_test_split(
-        filepaths, labels, test_size=test_size, random_state=14, stratify=labels
+        filepaths, labels, test_size=val_size, random_state=random_state, stratify=labels
     )
 
     train_dataset = {"filename": X_train, "label": y_train}
     val_dataset = {"filename": X_val, "label": y_val}
     target_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Saving dataset splits to CSVs...")
     pd.DataFrame(train_dataset).to_csv(target_dir / "train_split.csv", index=False)
     pd.DataFrame(val_dataset).to_csv(target_dir / "val_split.csv", index=False)
+
+    logger.info(f"Train split: {target_dir / 'train_split.csv'}")
+    logger.info(f"Validation split: {target_dir / 'val_split.csv'}")
 
 
 class OxfordFlowers102Dataset(Dataset):
@@ -218,10 +224,10 @@ class OxfordFlowersDataModule(pl.LightningDataModule):
         self.train_sampler = SubsetRandomSampler(train_idx)
         self.val_sampler = SubsetRandomSampler(valid_idx)
 
-    def get_sampler_indices(self, valid_size=0.1, shuffle=True, random_seed=14):
+    def get_sampler_indices(self, val_size=0.1, shuffle=True, random_seed=14):
         num_train = len(self.dataset)
         indices = list(range(num_train))
-        split = int(np.floor(valid_size * num_train))
+        split = int(np.floor(val_size * num_train))
 
         if shuffle:
             np.random.seed(random_seed)
