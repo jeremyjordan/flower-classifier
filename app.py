@@ -7,7 +7,6 @@ from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_nam
 from flower_classifier.ui import components
 
 WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v0.1/efficientnet_b3a_example.ckpt"
-SUCCESSFUL_UPLOADS = set()
 
 st.title("Flower Classification")
 model = components.download_model_url(WEIGHTS_URL)
