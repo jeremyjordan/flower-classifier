@@ -1,11 +1,10 @@
 import io
-import json
 
 import flickrapi
 from flickrapi.auth import FlickrAccessToken
 from PIL import Image
 
-from flower_classifier import REPO_DIR
+from flower_classifier.datasets.flickr.auth import get_secrets
 
 
 def get_authenticated_client():
@@ -14,7 +13,7 @@ def get_authenticated_client():
         - API keys to authenticate at the application level
         - OAuth token to authenticate at the user level
     """
-    secrets = json.loads((REPO_DIR / "secrets.json").read_text())
+    secrets = get_secrets()
 
     auth_token = FlickrAccessToken(
         token=secrets["OAUTH_TOKEN"],

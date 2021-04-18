@@ -1,3 +1,4 @@
+import os
 import sqlite3
 import webbrowser
 from pathlib import Path
@@ -38,3 +39,25 @@ def show_user_secrets(username="jeremythomasjordan"):
         "OAUTH_USER_NSID": results["user_nsid"],
     }
     return user_secrets
+
+
+def get_secrets():
+    required_keys = {
+        "API_KEY",
+        "API_SECRET",
+        "OAUTH_TOKEN",
+        "OAUTH_TOKEN_SECRET",
+        "OAUTH_ACCESS_LEVEL",
+        "OAUTH_FULL_NAME",
+        "OAUTH_USERNAME",
+        "OAUTH_USER_NSID",
+    }
+    if not required_keys.issubset(set(os.environ.keys())):
+        missing_keys = required_keys.difference(set(os.environ.keys()))
+        raise ValueError(f"Missing environment variables for: {missing_keys}")
+
+    secrets = {}
+    for k in required_keys:
+        secrets[k] = os.environ[k]
+
+    return secrets
