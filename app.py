@@ -1,5 +1,8 @@
+import hashlib
+
 import streamlit as st
 
+from flower_classifier.datasets.flickr.client import get_authenticated_client, upload_photo
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.ui import components
 
@@ -21,3 +24,19 @@ with st.beta_expander("Supported flower breeds"):
     for flower in oxford_idx_to_names:
         breeds += f"\n - {flower}"
     st.markdown(breeds)
+
+
+st.markdown(
+    """
+    Want to help us improve this model? Share the photo with us so we can include it
+    in our training data!
+    """
+)
+save_photo = st.button("Save photo to database")
+
+if save_photo:
+    flickr_client = get_authenticated_client()
+    image_hash = hashlib.md5(pil_image.tobytes()).hexdigest()
+    upload_photo(flickr_client, filename=f"{image_hash}.jpg", pil_image=pil_image)
+    st.balloons()
+    st.success("Thanks for sharing!")
