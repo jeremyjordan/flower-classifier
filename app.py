@@ -1,4 +1,4 @@
-from datetime import datetime
+import hashlib
 
 import streamlit as st
 
@@ -7,6 +7,7 @@ from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_nam
 from flower_classifier.ui import components
 
 WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v0.1/efficientnet_b3a_example.ckpt"
+SUCCESSFUL_UPLOADS = set()
 
 st.title("Flower Classification")
 model = components.download_model_url(WEIGHTS_URL)
@@ -26,11 +27,17 @@ with st.beta_expander("Supported flower breeds"):
     st.markdown(breeds)
 
 
+st.markdown(
+    """
+    Want to help us improve this model? Share the photo with us so we can include it
+    in our training data!
+    """
+)
 save_photo = st.button("Save photo to database")
-st.markdown("*Sharing this photo will help us improve our machine learning models!*")
+
 if save_photo:
     flickr_client = get_authenticated_client()
-    current = datetime.now().strftime("%Y-%m-%d_%H-%m")
-    upload_photo(flickr_client, filename=f"{current}.jpg", pil_image=pil_image)
+    image_hash = hashlib.md5(pil_image.tobytes()).hexdigest()
+    upload_photo(flickr_client, filename=f"{image_hash}.jpg", pil_image=pil_image)
     st.balloons()
     st.success("Thanks for sharing!")
