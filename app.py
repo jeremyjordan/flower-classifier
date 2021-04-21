@@ -1,4 +1,5 @@
 import hashlib
+from pathlib import Path
 
 import streamlit as st
 
@@ -7,6 +8,7 @@ from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_nam
 from flower_classifier.ui import components
 
 WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v0.1/efficientnet_b3a_example.ckpt"
+MODEL_ID = "_".join(Path(WEIGHTS_URL).parts[-2:])
 
 st.title("Flower Classification")
 model = components.download_model_url(WEIGHTS_URL)
@@ -33,8 +35,8 @@ st.markdown(
 )
 tags = set()
 model_pred = predicted_class.replace(" ", "_")
-model_pred_tag = f"pred:{model_pred}"
-tags.add(model_pred_tag)
+tags.add(f"pred:{model_pred}")
+tags.add(f"model:{MODEL_ID}")
 
 
 # Does the user think the prediction is correct?
