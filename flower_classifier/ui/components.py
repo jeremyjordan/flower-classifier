@@ -12,6 +12,7 @@ from omegaconf import OmegaConf
 from PIL import Image
 
 from flower_classifier.artifacts import download_model_checkpoint
+from flower_classifier.datasets.google.client import query_google_images
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.models.classifier import FlowerClassifier
 
@@ -58,10 +59,11 @@ def make_prediction(model, pil_image):
     return preds
 
 
-def display_prediction(preds):
+@st.cache()
+def get_prediction(preds):
     top_pred = preds.max(1)
     label = oxford_idx_to_names[top_pred.indices.item()]
-    st.write(f"Prediction: {label}")
+    return label
 
 
 def display_top_3_table(preds):
@@ -78,3 +80,10 @@ def display_prediction_distribution(preds):
         df = pd.DataFrame(data)
         fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
         st.plotly_chart(fig, use_container_width=True)
+
+
+def display_examples(label):
+    with st.beta_expander(f"View other examples of {label}"):
+        pil_images = query_google_images(label)
+        for i, pil_image in enumerate(pil_images):
+            st.image(pil_image, caption=f"Example image {i}", use_column_width=True)
