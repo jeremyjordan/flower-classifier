@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 
 import hydra
@@ -14,6 +15,8 @@ from PIL import Image
 from flower_classifier.artifacts import download_model_checkpoint
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.models.classifier import FlowerClassifier
+
+NON_ALPHABETIC_CHARS_PATTERN = re.compile(r"[^a-zA-Z ]+")
 
 
 def get_photo(use_sidebar=False):
@@ -62,6 +65,7 @@ def display_prediction(preds):
     top_pred = preds.max(1)
     label = oxford_idx_to_names[top_pred.indices.item()]
     st.write(f"Prediction: {label}")
+    return label
 
 
 def display_top_3_table(preds):
@@ -78,3 +82,22 @@ def display_prediction_distribution(preds):
         df = pd.DataFrame(data)
         fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
         st.plotly_chart(fig, use_container_width=True)
+
+
+def ask_user_if_correct():
+    is_correct = st.selectbox(
+        "(Optional) Do you think the model's prediction is correct?", options=["Unsure", "Correct", "Wrong"]
+    )
+    is_correct_tags = {
+        "Unsure": "user_judgement:unsure",
+        "Correct": "user_judgement:correct",
+        "Wrong": "user_judgement:wrong",
+    }
+    return is_correct_tags[is_correct]
+
+
+def ask_user_for_breed():
+    user_input = st.text_input("(Optional) Do you know what breed this flower is?")
+    cleaned_input = re.sub(NON_ALPHABETIC_CHARS_PATTERN, "", user_input)
+    cleaned_input = cleaned_input.replace(" ", "_")
+    return f"user_input:{cleaned_input}"

@@ -1,3 +1,7 @@
+"""
+See documentation for flickrapi here: https://stuvel.eu/flickrapi-doc/
+"""
+
 import io
 import json
 import logging
@@ -44,7 +48,7 @@ def is_photo_duplicate(flickr_client: flickrapi.FlickrAPI, filename: str, user_i
     return False
 
 
-def upload_photo(flickr_client: flickrapi.FlickrAPI, filename: str, pil_image: Image = None):
+def upload_photo(flickr_client: flickrapi.FlickrAPI, filename: str, pil_image: Image = None, tags: set = None):
     """
     Uploads a photo to the authenticated user's Flickr account.
 
@@ -59,4 +63,5 @@ def upload_photo(flickr_client: flickrapi.FlickrAPI, filename: str, pil_image: I
         fileobj.seek(0)
     else:
         fileobj = None
-    _ = flickr_client.upload(filename=filename, fileobj=fileobj, format="etree")
+    tags = " ".join(tags) if tags else None
+    _ = flickr_client.upload(filename=filename, fileobj=fileobj, tags=tags, format="etree")
