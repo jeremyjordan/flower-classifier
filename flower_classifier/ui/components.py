@@ -13,6 +13,7 @@ from omegaconf import OmegaConf
 from PIL import Image
 
 from flower_classifier.artifacts import download_model_checkpoint
+from flower_classifier.datasets.google.client import query_google_images
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.models.classifier import FlowerClassifier
 
@@ -82,6 +83,15 @@ def display_prediction_distribution(preds):
         df = pd.DataFrame(data)
         fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
         st.plotly_chart(fig, use_container_width=True)
+
+
+def display_examples(label):
+    with st.beta_expander(f"View other {label} examples"):
+        view_examples = st.button(f"Load {label} images")
+        if view_examples:
+            image_urls = query_google_images(label)
+            for i, image_url in enumerate(image_urls):
+                st.image(image_url, caption=f"Example image {i}", use_column_width=True)
 
 
 def ask_user_if_correct():

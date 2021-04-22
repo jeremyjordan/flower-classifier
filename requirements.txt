@@ -1,7 +1,8 @@
 flickrapi==2.4.0
+Google-Images-Search==1.3.8
 hydra-core==1.0.3
 pandas==1.1.4
-Pillow==7.2.0
+Pillow==8.2.0
 plotly==4.10.0
 pytorch-lightning==1.0.5
 scikit-learn==0.23.2

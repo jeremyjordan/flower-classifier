@@ -17,6 +17,7 @@ st.image(pil_image, caption="Input image", use_column_width=True)
 preds = components.make_prediction(model, pil_image)
 
 predicted_class = components.display_prediction(preds)
+components.display_examples(predicted_class)
 components.display_top_3_table(preds)
 components.display_prediction_distribution(preds)
 
