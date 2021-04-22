@@ -1,4 +1,5 @@
 import os
+import re
 import tempfile
 
 import hydra
@@ -15,6 +16,8 @@ from flower_classifier.artifacts import download_model_checkpoint
 from flower_classifier.datasets.google.client import query_google_images
 from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.models.classifier import FlowerClassifier
+
+NON_ALPHABETIC_CHARS_PATTERN = re.compile(r"[^a-zA-Z ]+")
 
 
 def get_photo(use_sidebar=False):
@@ -89,3 +92,22 @@ def display_examples(label):
             image_urls = query_google_images(label)
             for i, image_url in enumerate(image_urls):
                 st.image(image_url, caption=f"Example image {i}", use_column_width=True)
+
+
+def ask_user_if_correct():
+    is_correct = st.selectbox(
+        "(Optional) Do you think the model's prediction is correct?", options=["Unsure", "Correct", "Wrong"]
+    )
+    is_correct_tags = {
+        "Unsure": "user_judgement:unsure",
+        "Correct": "user_judgement:correct",
+        "Wrong": "user_judgement:wrong",
+    }
+    return is_correct_tags[is_correct]
+
+
+def ask_user_for_breed():
+    user_input = st.text_input("(Optional) Do you know what breed this flower is?")
+    cleaned_input = re.sub(NON_ALPHABETIC_CHARS_PATTERN, "", user_input)
+    cleaned_input = cleaned_input.replace(" ", "_")
+    return f"user_input:{cleaned_input}"
