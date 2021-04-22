@@ -10,7 +10,7 @@ import flickrapi
 from flickrapi.auth import FlickrAccessToken
 from PIL import Image
 
-from flower_classifier.datasets.flickr.auth import get_secrets
+from flower_classifier.datasets import get_secrets
 
 logger = logging.getLogger(__name__)
 
