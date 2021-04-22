@@ -59,10 +59,10 @@ def make_prediction(model, pil_image):
     return preds
 
 
-@st.cache()
-def get_prediction(preds):
+def display_prediction(preds):
     top_pred = preds.max(1)
     label = oxford_idx_to_names[top_pred.indices.item()]
+    st.write(f"Prediction: {label}")
     return label
 
 
@@ -86,6 +86,6 @@ def display_examples(label):
     with st.beta_expander(f"View other {label} examples"):
         view_examples = st.button(f"Load {label} images")
         if view_examples:
-            pil_images = query_google_images(label)
-            for i, pil_image in enumerate(pil_images):
-                st.image(pil_image, caption=f"Example image {i}", use_column_width=True)
+            image_urls = query_google_images(label)
+            for i, image_url in enumerate(image_urls):
+                st.image(image_url, caption=f"Example image {i}", use_column_width=True)

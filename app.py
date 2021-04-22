@@ -14,9 +14,8 @@ pil_image = components.get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
 preds = components.make_prediction(model, pil_image)
 
-label = components.get_prediction(preds)
-st.write(f"Prediction: {label}")
-components.display_examples(label)
+predicted_class = components.display_prediction(preds)
+components.display_examples(predicted_class)
 components.display_top_3_table(preds)
 components.display_prediction_distribution(preds)
 

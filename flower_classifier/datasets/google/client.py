@@ -1,7 +1,5 @@
 import os
-from io import BytesIO
 
-import PIL
 from google_images_search import GoogleImagesSearch
 
 
@@ -19,21 +17,8 @@ def get_secrets():
     return secrets
 
 
-def result_2_pil(image) -> PIL.Image:
-    bytes_io = BytesIO()
-    bytes_io.seek(0)
-    image.copy_to(bytes_io)
-    bytes_io.seek(0)
-    try:
-        return PIL.Image.open(bytes_io)
-    except PIL.UnidentifiedImageError:
-        return None
-
-
 def query_google_images(prediction_name: str):
     secrets = get_secrets()
     gis = GoogleImagesSearch(secrets["GIS_API_KEY"], secrets["GIS_PROJECT_CX"])
-
     gis.search({"q": f"{prediction_name} flower", "num": 3})
-    images = [result_2_pil(image) for image in gis.results()]
-    return [image for image in images if image]
+    return [result.url for result in gis.results()]
