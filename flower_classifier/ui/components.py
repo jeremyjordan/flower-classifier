@@ -83,7 +83,9 @@ def display_prediction_distribution(preds):
 
 
 def display_examples(label):
-    with st.beta_expander(f"View other examples of {label}"):
-        pil_images = query_google_images(label)
-        for i, pil_image in enumerate(pil_images):
-            st.image(pil_image, caption=f"Example image {i}", use_column_width=True)
+    with st.beta_expander(f"View other {label} examples"):
+        view_examples = st.button(f"Load {label} images")
+        if view_examples:
+            pil_images = query_google_images(label)
+            for i, pil_image in enumerate(pil_images):
+                st.image(pil_image, caption=f"Example image {i}", use_column_width=True)
