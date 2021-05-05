@@ -1,0 +1,5 @@
+# @package _group_
+_target_: flower_classifier.datasets.folder.FolderDataModule
+train_dir: "/content/drive/My Drive/Flowers/..."
+val_dir: "/content/drive/My Drive/Flowers/..."
+batch_size: 32
