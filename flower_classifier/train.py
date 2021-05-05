@@ -51,7 +51,7 @@ def train(cfg):
     experiment = getattr(logger, "experiment", None)
     logger_dir = getattr(experiment, "dir", "logger")
     checkpoints_dir = os.path.join(logger_dir, "{epoch}")
-    checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, filepath=checkpoints_dir) or False
+    checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, dirpath=checkpoints_dir) or False
     if checkpoint_callback:
         callbacks.append(checkpoint_callback)
 

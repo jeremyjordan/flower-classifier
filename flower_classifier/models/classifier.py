@@ -6,7 +6,7 @@ import timm
 import torch
 import torch.nn as nn
 from omegaconf import DictConfig, OmegaConf
-from pytorch_lightning.metrics.functional.classification import confusion_matrix
+from torchmetrics.functional import confusion_matrix
 
 from flower_classifier.visualizations import generate_confusion_matrix
 
