@@ -8,6 +8,6 @@ checkpoint_callback:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
   save_top_k: 1
   monitor: val/loss
-  filepath: ./{epoch}
+  filename: ./{epoch}
 max_epochs: 5
 overfit_batches: 2
