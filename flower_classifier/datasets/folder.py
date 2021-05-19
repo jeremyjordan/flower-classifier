@@ -18,10 +18,6 @@ class FolderDataset(torchvision.datasets.ImageFolder):
         target_transform = torchvision.transforms.Compose(target_transform)
         super().__init__(root=root, transform=transform, target_transform=target_transform)
 
-    @property
-    def classes(self):
-        return self.classes
-
     def to_csv(self, filename, indices: List[int] = None):
         df = pd.DataFrame(self.samples, columns=["filename", "label"])
         df["class"] = df["label"].apply(lambda x: self.classes[x])
@@ -61,12 +57,12 @@ class FolderDataModule(pl.LightningDataModule):
 
     def train_dataloader(self):
         return torch.utils.data.DataLoader(
-            self.train_dataset, batch_size=self.batch_size, sampler=self.train_sampler, num_workers=4
+            self.dataset, batch_size=self.batch_size, sampler=self.train_sampler, num_workers=4
         )
 
     def val_dataloader(self):
         return torch.utils.data.DataLoader(
-            self.val_dataset, batch_size=self.batch_size, sampler=self.val_sampler, num_workers=4
+            self.dataset, batch_size=self.batch_size, sampler=self.val_sampler, num_workers=4
         )
 
     @property
