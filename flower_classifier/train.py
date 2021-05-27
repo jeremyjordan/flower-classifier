@@ -50,7 +50,7 @@ def train(cfg):
     # checkpoint callback requires dynamic configuration
     experiment = getattr(logger, "experiment", None)
     logger_dir = getattr(experiment, "dir", "logger")
-    checkpoints_dir = os.path.join(logger_dir, "{epoch}")
+    checkpoints_dir = os.path.join(logger_dir, "checkpoints")
     checkpoint_callback = hydra.utils.instantiate(cfg.trainer.checkpoint_callback, dirpath=checkpoints_dir) or False
     if checkpoint_callback:
         callbacks.append(checkpoint_callback)
