@@ -14,7 +14,7 @@ test:
 check:
 	pre-commit run --all-files
 
-colab: init
+colab: init check
 	cp .vscode/default_settings.json .vscode/settings.json
 	sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
 	sudo apt-add-repository https://cli.github.com/packages

@@ -1,0 +1,5 @@
+# @package _group_
+_target_: flower_classifier.datasets.folder.FolderDataModule
+root_dir: "/content/drive/My Drive/Flowers/enhanced_oxford/"
+val_size: 0.1
+batch_size: 32

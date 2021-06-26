@@ -1,4 +1,5 @@
 import logging
+import shutil
 from pathlib import Path
 
 import numpy as np
@@ -76,7 +77,7 @@ NAMES = [
     "gaura",
     "geranium",
     "orange dahlia",
-    "pink-yellow dahlia?",
+    "pink-yellow dahlia",
     "cautleya spicata",
     "japanese anemone",
     "black-eyed susan",
@@ -171,6 +172,19 @@ def split_dataset(root_dir: str, target_dir: str, val_size=0.1, random_state=14,
 
     logger.info(f"Train split: {target_dir / 'train_split.csv'}")
     logger.info(f"Validation split: {target_dir / 'val_split.csv'}")
+
+
+@app.command()
+def convert_dataset(root_dir: str, target_dir: str, format="folder"):
+    root_dir = Path(root_dir)
+    target_dir = Path(target_dir)
+    target_dir.mkdir(exist_ok=True, parents=True)
+    labels = loadmat(root_dir / "imagelabels.mat")["labels"].flatten() - 1  # shift labels from 1-index to 0-index
+    for i, label_idx in labels:
+        filepath = root_dir / "jpg" / f"image_{i+1:05}.jpg"
+        label = NAMES[label_idx]
+        target_filepath = target_dir / label / filepath.name
+        shutil.copyfile(filepath, target_filepath)
 
 
 class OxfordFlowers102Dataset(Dataset):

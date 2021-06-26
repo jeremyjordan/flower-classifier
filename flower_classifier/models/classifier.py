@@ -96,3 +96,20 @@ class FlowerClassifier(pl.LightningModule):
         scheduler_dict = OmegaConf.to_container(self.lr_scheduler_config, resolve=True)
         scheduler_dict["scheduler"] = scheduler
         return [optimizer], [scheduler_dict]
+
+    def on_fit_start(self):
+        if self.global_rank == 0 and getattr(self.trainer.datamodule, "to_csv", False):
+            experiment = getattr(self.logger, "experiment", None)
+            logger_dir = getattr(experiment, "dir", "output")
+            self.trainer.datamodule.to_csv(logger_dir)
+
+    def on_train_start(self):
+        dataset = self.train_dataloader().dataset
+        classes = getattr(dataset, "classes", None)
+        self.classes = classes
+
+    def on_save_checkpoint(self, checkpoint):
+        checkpoint["model_prediction_classes"] = self.classes
+
+    def on_load_checkpoint(self, checkpoint):
+        self.classes = checkpoint["model_prediction_classes"]

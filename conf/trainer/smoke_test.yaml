@@ -3,13 +3,13 @@ gpus: 1
 log_every_n_steps: 1
 logger:
   _target_: pytorch_lightning.loggers.WandbLogger
-  project: test
+  project: "test"
   tags:
-    - oxford102
+    - "oxford102"
 checkpoint_callback:
   _target_: pytorch_lightning.callbacks.ModelCheckpoint
   save_top_k: 1
-  monitor: val/loss
-  filename: ./{epoch}
+  monitor: "val/loss"
+  filename: "{epoch}"
 max_epochs: 5
 overfit_batches: 4
