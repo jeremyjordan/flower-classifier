@@ -14,7 +14,6 @@ from PIL import Image
 
 from flower_classifier.artifacts import download_model_checkpoint
 from flower_classifier.datasets.google.client import query_google_images
-from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.models.classifier import FlowerClassifier
 
 NON_ALPHABETIC_CHARS_PATTERN = re.compile(r"[^a-zA-Z ]+")
@@ -62,24 +61,24 @@ def make_prediction(model, pil_image):
     return preds
 
 
-def display_prediction(preds):
+def display_prediction(model, preds):
     top_pred = preds.max(1)
-    label = oxford_idx_to_names[top_pred.indices.item()]
+    label = model.classes[top_pred.indices.item()]
     st.write(f"Prediction: {label}")
     return label
 
 
-def display_top_3_table(preds):
+def display_top_3_table(model, preds):
     with st.beta_expander("View top 3 predictions"):
         top_3 = preds.topk(k=3, dim=1)
-        labels = [oxford_idx_to_names[idx.item()] for idx in top_3.indices[0]]
+        labels = [model.classes[idx.item()] for idx in top_3.indices[0]]
         scores = top_3.values[0].detach().cpu().numpy()
         st.table({"predicted class": labels, "scores": scores})
 
 
-def display_prediction_distribution(preds):
+def display_prediction_distribution(model, preds):
     with st.beta_expander("View full prediction distribution"):
-        data = {"scores": preds.squeeze().detach().numpy(), "flower": oxford_idx_to_names}
+        data = {"scores": preds.squeeze().detach().numpy(), "flower": model.classes}
         df = pd.DataFrame(data)
         fig = px.bar(df, y="scores", x="flower", title="Prediction Distribution")
         st.plotly_chart(fig, use_container_width=True)

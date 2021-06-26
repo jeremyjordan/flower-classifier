@@ -4,10 +4,9 @@ from pathlib import Path
 import streamlit as st
 
 from flower_classifier.datasets.flickr.client import get_authenticated_client, upload_photo
-from flower_classifier.datasets.oxford_flowers import NAMES as oxford_idx_to_names
 from flower_classifier.ui import components
 
-WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v0.1/efficientnet_b3a_example.ckpt"
+WEIGHTS_URL = "https://github.com/jeremyjordan/flower-classifier/releases/download/v1.1/efficient_net_b3_run_2sas9p42_epoch_44.ckpt"  # noqa: E501
 MODEL_ID = "_".join(Path(WEIGHTS_URL).parts[-2:])
 
 st.title("Flower Classification")
@@ -16,14 +15,14 @@ pil_image = components.get_photo()
 st.image(pil_image, caption="Input image", use_column_width=True)
 preds = components.make_prediction(model, pil_image)
 
-predicted_class = components.display_prediction(preds)
+predicted_class = components.display_prediction(model, preds)
 components.display_examples(predicted_class)
-components.display_top_3_table(preds)
-components.display_prediction_distribution(preds)
+components.display_top_3_table(model, preds)
+components.display_prediction_distribution(model, preds)
 
 with st.beta_expander("Supported flower breeds"):
     breeds = "The model can recognize the following breeds:"
-    for flower in oxford_idx_to_names:
+    for flower in model.classes:
         breeds += f"\n - {flower}"
     st.markdown(breeds)
 
