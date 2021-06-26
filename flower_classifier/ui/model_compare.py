@@ -37,9 +37,9 @@ with col1:
         model = components.download_model_wandb(run_id, checkpoint_file)
         preds = components.make_prediction(model, pil_image)
 
-        components.display_prediction(preds)
-        components.display_top_3_table(preds)
-        components.display_prediction_distribution(preds)
+        components.display_prediction(model, preds)
+        components.display_top_3_table(model, preds)
+        components.display_prediction_distribution(model, preds)
 
 
 with col2:
@@ -49,6 +49,6 @@ with col2:
         model = components.download_model_wandb(run_id, checkpoint_file)
         preds = components.make_prediction(model, pil_image)
 
-        components.display_prediction(preds)
-        components.display_top_3_table(preds)
-        components.display_prediction_distribution(preds)
+        components.display_prediction(model, preds)
+        components.display_top_3_table(model, preds)
+        components.display_prediction_distribution(model, preds)
