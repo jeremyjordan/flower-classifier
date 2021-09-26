@@ -3,6 +3,7 @@ import webbrowser
 from pathlib import Path
 
 OAUTH_TOKEN_CACHE = Path.home() / ".flickr" / "oauth-tokens.sqlite"
+USER_ID = "192840150@N08"
 
 
 def authenticate_new_user(flickr_client):
