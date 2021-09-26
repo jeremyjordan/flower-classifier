@@ -58,7 +58,6 @@ def get_photos(
     unlabeled_dir.mkdir(exist_ok=True, parents=True)
     labeled_dir.mkdir(exist_ok=True, parents=True)
 
-    breakpoint()
     # grab 50 unlabeled photos from flickr
     # and download to expected folder structure
     flickr_client = get_authenticated_client(format="etree")
