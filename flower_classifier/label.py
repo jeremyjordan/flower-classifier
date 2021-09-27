@@ -16,6 +16,7 @@ from flower_classifier.datasets.flickr.client import (
 app = typer.Typer()
 
 LABELED_TAG = "status:labeled"
+UNCERTAIN_TAG = "status:uncertain"
 
 
 def _confirm_directory_is_empty(dir: Path, exit_message="Exiting program."):
@@ -60,13 +61,15 @@ def get_photos(
 
     # grab 50 unlabeled photos from flickr
     # and download to expected folder structure
+    # TODO parallelize this with concurrent futures
     flickr_client = get_authenticated_client(format="etree")
     count = 0
     downloaded_photos = {}
     for count, photo in enumerate(
         flickr_client.walk(
             tag_mode="all",
-            tags=f"-{LABELED_TAG}",  # adding a "-" in front of a tag excludes results that match the tag
+            # adding a "-" in front of a tag excludes results that match the tag
+            tags=f"-{LABELED_TAG}, -{UNCERTAIN_TAG}",
             user_id=FLICKR_USER_ID,
         )
     ):
@@ -91,10 +94,12 @@ def get_photos(
 
 @app.command()
 def return_photos_to_labeling_pool(
-    label_dir: str = typer.Option(str(Path.home() / "flower_classifier_labels"), prompt=True)
+    label_dir: str = typer.Option(str(Path.home() / "flower_classifier_labels"), prompt=True),
+    remaining_uncertain: bool = typer.Option(False, help="Mark remaining photos as uncertain?", prompt=True),
 ):
     """
     Remove the "labeled" tag from any remaining photos in the unlabeled directory.
+    If we need further review for remaining photos, tag as uncertain.
     """
 
     # intialize directories
@@ -108,7 +113,8 @@ def return_photos_to_labeling_pool(
     for photo in unlabeled_dir.rglob("**/*.jpg"):
         photo_id = downloaded_photos.get(str(photo), {}).get("photo_id")
         if photo_id:
-            update_photo_tags(flickr_client, photo_id, remove_tags=[LABELED_TAG])
+            insert_tags = [UNCERTAIN_TAG] if remaining_uncertain else None
+            update_photo_tags(flickr_client, photo_id, insert_tags=insert_tags, remove_tags=[LABELED_TAG])
         else:
             typer.echo(f"Couldn't find a photo id for {photo}, please remove the tag manually.")
 
